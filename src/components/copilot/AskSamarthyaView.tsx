@@ -44,7 +44,7 @@ export const AskSamarthyaView: React.FC<AskSamarthyaViewProps> = ({
   };
 
   return (
-    <div className="space-y-5 animate-in fade-in duration-300">
+    <div className="space-y-7 sm:space-y-9 animate-in fade-in duration-300">
       {/* 1. Command Bar & Quick Presets */}
       <CommandBar
         currentQuery={searchQuery}

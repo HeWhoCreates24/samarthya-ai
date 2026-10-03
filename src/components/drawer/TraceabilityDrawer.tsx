@@ -94,7 +94,7 @@ export const TraceabilityDrawer: React.FC<TraceabilityDrawerProps> = ({
       {/* Slide-Over Right Sheet (Matching Image 2) */}
       <div className="w-full max-w-xl h-full glass-panel border-l border-white/10 shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-right duration-300 bg-slate-950/90">
         {/* Top Header Row with Close Icon */}
-        <div className="p-5 pb-3 flex items-center justify-between">
+        <div className="p-4 sm:p-5 pb-2 sm:pb-3 flex items-center justify-between">
           <span className="text-xs font-mono text-slate-400 uppercase tracking-widest">
             Cryptographic Provenance Drawer
           </span>
@@ -107,30 +107,30 @@ export const TraceabilityDrawer: React.FC<TraceabilityDrawerProps> = ({
         </div>
 
         {/* 4-Tier LGD Breadcrumb Pills (Matching Image 2) */}
-        <div className="px-5 pb-4">
+        <div className="px-4 sm:px-5 pb-3 sm:pb-4">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="glass-pill px-3 py-1 rounded-full text-xs font-medium text-slate-200">
+            <span className="glass-pill px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-medium text-slate-200">
               {voucher.lgd.state.name} ({voucher.lgd.state.code})
             </span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-            <span className="glass-pill px-3 py-1 rounded-full text-xs font-medium text-slate-200">
+            <ChevronRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+            <span className="glass-pill px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-medium text-slate-200">
               {voucher.lgd.district.name} ({voucher.lgd.district.code})
             </span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-            <span className="glass-pill px-3 py-1 rounded-full text-xs font-medium text-blue-300 border border-blue-400/30">
+            <ChevronRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+            <span className="glass-pill px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-medium text-blue-300 border border-blue-400/30">
               {voucher.lgd.subDistrictBlock.name} ({voucher.lgd.subDistrictBlock.code})
             </span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
-            <span className="glass-pill px-3 py-1 rounded-full text-xs font-medium text-emerald-300 border border-emerald-400/30">
+            <ChevronRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+            <span className="glass-pill px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-medium text-emerald-300 border border-emerald-400/30">
               {voucher.lgd.gramPanchayat.name} ({voucher.lgd.gramPanchayat.code})
             </span>
           </div>
         </div>
 
         {/* Verification Status Box (Matching Image 2) */}
-        <div className="px-5 pb-4">
+        <div className="px-4 sm:px-5 pb-3 sm:pb-4">
           <div
-            className={`p-3.5 rounded-2xl border transition-colors ${
+            className={`p-3 sm:p-3.5 rounded-2xl border transition-colors ${
               verificationResult === 'MATCH'
                 ? 'bg-emerald-950/30 border-emerald-500/40 text-emerald-300'
                 : 'bg-rose-950/40 border-rose-500/60 text-rose-300'
@@ -157,7 +157,7 @@ export const TraceabilityDrawer: React.FC<TraceabilityDrawerProps> = ({
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto px-5 space-y-4 text-xs">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-5 space-y-4 text-xs">
           {/* Header Action: Voucher Audit Diff + Simulate Tamper Test Toggle */}
           <div className="flex items-center justify-between pt-1">
             <span className="text-xs font-bold text-slate-200 tracking-tight flex items-center gap-2">
@@ -195,9 +195,9 @@ export const TraceabilityDrawer: React.FC<TraceabilityDrawerProps> = ({
 
             {/* 2-Column Voucher Diff Container */}
             <div className="glass-panel p-4 rounded-2xl border border-white/10 space-y-3">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {/* Column 1: MoA&FW Voucher */}
-                <div className="space-y-1.5 border-r border-white/5 pr-3">
+                <div className="space-y-1.5 border-b sm:border-b-0 sm:border-r border-white/5 pb-3 sm:pb-0 sm:pr-3">
                   <span className="text-[10px] text-slate-400 block font-sans">MoA&FW Voucher</span>
                   <div className="font-bold text-slate-200 text-sm font-mono">{voucher.id}</div>
                   <div className="text-[11px] text-slate-400">
@@ -214,7 +214,7 @@ export const TraceabilityDrawer: React.FC<TraceabilityDrawerProps> = ({
                 </div>
 
                 {/* Column 2: MoRD Voucher */}
-                <div className="space-y-1.5 pl-1">
+                <div className="space-y-1.5 pt-1 sm:pt-0 sm:pl-1">
                   <span className="text-[10px] text-slate-400 block font-sans">MoRD Voucher</span>
                   <div className="font-bold text-slate-200 text-sm font-mono">
                     {voucher.duplicateWith?.voucherId || 'Txn_91034'}

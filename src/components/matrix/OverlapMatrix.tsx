@@ -279,11 +279,11 @@ export const OverlapMatrix: React.FC<OverlapMatrixProps> = ({
         </div>
 
         {/* Quick Filter Capsule */}
-        <div className="glass-pill px-1.5 py-1 rounded-full flex items-center gap-1 text-[11px]">
+        <div className="glass-pill px-1.5 py-1 rounded-full flex items-center gap-1 text-[11px] max-w-full overflow-x-auto no-scrollbar">
           <button
             type="button"
             onClick={() => setFilterMode('all')}
-            className={`px-3 py-1 rounded-full font-medium transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-full font-medium transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               filterMode === 'all'
                 ? 'bg-white text-slate-950 font-bold shadow-md'
                 : 'text-slate-400 hover:text-white'
@@ -294,7 +294,7 @@ export const OverlapMatrix: React.FC<OverlapMatrixProps> = ({
           <button
             type="button"
             onClick={() => setFilterMode('critical')}
-            className={`px-3 py-1 rounded-full font-medium transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-full font-medium transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               filterMode === 'critical'
                 ? 'bg-rose-500 text-white font-bold shadow-md shadow-rose-500/30'
                 : 'text-slate-400 hover:text-white'
@@ -305,7 +305,7 @@ export const OverlapMatrix: React.FC<OverlapMatrixProps> = ({
           <button
             type="button"
             onClick={() => setFilterMode('moderate')}
-            className={`px-3 py-1 rounded-full font-medium transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-full font-medium transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               filterMode === 'moderate'
                 ? 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/30'
                 : 'text-slate-400 hover:text-white'
@@ -316,7 +316,7 @@ export const OverlapMatrix: React.FC<OverlapMatrixProps> = ({
           <button
             type="button"
             onClick={() => setFilterMode('harmonized')}
-            className={`px-3 py-1 rounded-full font-medium transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-full font-medium transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               filterMode === 'harmonized'
                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/30'
                 : 'text-slate-400 hover:text-white'
@@ -330,145 +330,147 @@ export const OverlapMatrix: React.FC<OverlapMatrixProps> = ({
       {/* Side-by-Side Unified Architecture (Zero Matrix Obstruction) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Side: Full Overlap Matrix (100% Unobscured) */}
-        <div className="lg:col-span-7 glass-panel p-5 sm:p-7 rounded-3xl relative overflow-hidden shadow-2xl border border-white/10">
+        <div className="lg:col-span-7 glass-panel p-2.5 sm:p-7 rounded-2xl sm:rounded-3xl relative overflow-hidden shadow-2xl border border-white/10">
           {/* Top Header: Ministry of Rural Development+ & Food Processing */}
-          <div className="text-center mb-5">
-            <span className="text-xs font-semibold text-slate-300 uppercase tracking-widest flex items-center justify-center gap-2">
-              <Layers className="w-3.5 h-3.5 text-blue-400" />
-              Ministry of Rural Development+ &amp; Food Processing
+          <div className="text-center mb-3 sm:mb-5">
+            <span className="text-[10px] sm:text-xs font-semibold text-slate-300 uppercase tracking-wider sm:tracking-widest flex items-center justify-center gap-1.5 sm:gap-2">
+              <Layers className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-400 shrink-0" />
+              <span className="truncate">Ministry of Rural Development+ &amp; Food Processing</span>
             </span>
           </div>
 
-          {/* Matrix Grid Structure */}
-          <div className="flex items-start gap-3 sm:gap-4">
-            {/* Left Y-Axis Ministry Label */}
-            <div className="flex items-center justify-center [writing-mode:vertical-lr] rotate-180 py-4 text-xs font-semibold text-slate-400 uppercase tracking-widest select-none">
-              Ministry of Agriculture (M)
-            </div>
+          {/* Matrix Grid Structure with Responsive Horizontal Scroll */}
+          <div className="overflow-x-auto no-scrollbar pb-1">
+            <div className="flex items-start gap-1.5 sm:gap-4 min-w-0 w-full">
+              {/* Left Y-Axis Ministry Label */}
+              <div className="flex items-center justify-center [writing-mode:vertical-lr] rotate-180 py-2 sm:py-4 text-[9.5px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider sm:tracking-widest select-none shrink-0 w-4 sm:w-auto">
+                Ministry of Agriculture (M)
+              </div>
 
-            <div className="flex-1 space-y-3">
-              {/* Top Column Header Pills */}
-              <div className="grid grid-cols-4 gap-2.5 sm:gap-3">
-                <div /> {/* Empty top-left corner */}
-                {cols.map((col) => (
-                  <div
-                    key={col}
-                    className="glass-pill py-2.5 rounded-2xl text-center text-xs font-bold text-slate-200 uppercase tracking-wider shadow-md"
-                  >
-                    {col}
+              <div className="flex-1 space-y-1.5 sm:space-y-3">
+                {/* Top Column Header Pills */}
+                <div className="grid grid-cols-4 gap-1.5 sm:gap-3">
+                  <div /> {/* Empty top-left corner */}
+                  {cols.map((col) => (
+                    <div
+                      key={col}
+                      className="glass-pill py-1.5 sm:py-2.5 px-1 rounded-xl sm:rounded-2xl text-center text-[10px] sm:text-xs font-bold text-slate-200 uppercase tracking-wider shadow-md truncate"
+                    >
+                      {col}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Matrix Rows */}
+                {rows.map((rowName) => (
+                  <div key={rowName} className="grid grid-cols-4 gap-1.5 sm:gap-3 items-stretch">
+                    {/* Left Row Header Pill */}
+                    <div className="glass-pill py-2 sm:py-3.5 px-1 sm:px-2 rounded-xl sm:rounded-2xl flex items-center justify-center font-bold text-[10px] sm:text-xs text-slate-200 shadow-md truncate">
+                      {rowName}
+                    </div>
+
+                    {/* 3 Cells in Row */}
+                    {cols.map((colName) => {
+                      const cell = MATRIX_CELLS.find(
+                        (c) => c.rowKey === rowName && c.colKey === colName
+                      );
+                      if (!cell) return <div key={colName} />;
+
+                      const isSelected = selectedCellId === cell.id;
+                      const isVisible = isCellMatchingFilter(cell);
+
+                      return (
+                        <div
+                          key={cell.id}
+                          onClick={() => setSelectedCellId(cell.id)}
+                          style={{ opacity: isVisible ? 1 : 0.2 }}
+                          className={`relative rounded-xl sm:rounded-2xl min-h-[62px] sm:min-h-[92px] p-1 sm:p-2.5 flex flex-col items-center justify-center cursor-pointer transition-all duration-200 select-none ${
+                            isSelected
+                              ? 'border-2 border-cyan-400 shadow-xl shadow-cyan-500/35 scale-[1.03] z-10'
+                              : 'hover:scale-[1.01]'
+                          } ${
+                            cell.cellType === 'amount'
+                              ? 'glass-panel glow-blue bg-cyan-950/20'
+                              : cell.category === 'critical'
+                              ? 'bg-gradient-to-br from-rose-950/40 via-rose-900/25 to-slate-950/40 border border-rose-500/30 glow-peach shadow-lg'
+                              : cell.category === 'moderate'
+                              ? 'bg-gradient-to-br from-amber-950/40 via-amber-900/25 to-slate-950/40 border border-amber-500/30 glow-amber shadow-lg'
+                              : 'glass-panel hover:bg-white/5'
+                          }`}
+                        >
+                          {/* Active indicator dot */}
+                          {isSelected && (
+                            <div className="absolute -top-1.5 -right-1.5 w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-cyan-400 flex items-center justify-center shadow-md shadow-cyan-400/80">
+                              <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-slate-950" />
+                            </div>
+                          )}
+
+                          {/* Cell Type 1: Large Amount Display (₹14.2 Cr) */}
+                          {cell.cellType === 'amount' && (
+                            <span className="text-sm sm:text-2xl font-extrabold text-white font-sans tracking-tight">
+                              {cell.amountDisplay}
+                            </span>
+                          )}
+
+                          {/* Cell Type 2: Glowing Dot */}
+                          {cell.cellType === 'dot' && (
+                            <div
+                              className={`w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full ${
+                                cell.category === 'neutral'
+                                  ? 'bg-slate-600'
+                                  : 'bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.85)]'
+                              }`}
+                            />
+                          )}
+
+                          {/* Cell Type 3: Badge (Conflict) */}
+                          {cell.cellType === 'badge' && (
+                            <span className="px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-[8px] sm:text-[10px] font-semibold tracking-wide">
+                              {cell.badgeLabel}
+                            </span>
+                          )}
+
+                          {/* Cell Type 4: Card with Badge Pill + Amount */}
+                          {cell.cellType === 'card' && (
+                            <div className="flex flex-col items-center justify-center text-center px-0.5">
+                              <span
+                                className={`px-1 sm:px-2 py-0.5 rounded-full text-[7px] sm:text-[9px] font-medium mb-0.5 sm:mb-1 leading-tight ${
+                                  cell.category === 'critical'
+                                    ? 'bg-rose-500/25 text-rose-200 border border-rose-400/30'
+                                    : 'bg-amber-500/25 text-amber-200 border border-amber-400/30'
+                                }`}
+                              >
+                                {cell.badgeLabel}
+                              </span>
+                              <span className="text-xs sm:text-lg font-extrabold text-white font-sans">
+                                {cell.amountDisplay}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 ))}
               </div>
-
-              {/* Matrix Rows */}
-              {rows.map((rowName) => (
-                <div key={rowName} className="grid grid-cols-4 gap-2.5 sm:gap-3 items-stretch">
-                  {/* Left Row Header Pill */}
-                  <div className="glass-pill py-3.5 px-2.5 rounded-2xl flex items-center justify-center font-bold text-xs text-slate-200 shadow-md">
-                    {rowName}
-                  </div>
-
-                  {/* 3 Cells in Row */}
-                  {cols.map((colName) => {
-                    const cell = MATRIX_CELLS.find(
-                      (c) => c.rowKey === rowName && c.colKey === colName
-                    );
-                    if (!cell) return <div key={colName} />;
-
-                    const isSelected = selectedCellId === cell.id;
-                    const isVisible = isCellMatchingFilter(cell);
-
-                    return (
-                      <div
-                        key={cell.id}
-                        onClick={() => setSelectedCellId(cell.id)}
-                        style={{ opacity: isVisible ? 1 : 0.2 }}
-                        className={`relative rounded-2xl min-h-[92px] flex flex-col items-center justify-center cursor-pointer transition-all duration-200 select-none ${
-                          isSelected
-                            ? 'border-2 border-cyan-400 shadow-xl shadow-cyan-500/35 scale-[1.03] z-10'
-                            : 'hover:scale-[1.01]'
-                        } ${
-                          cell.cellType === 'amount'
-                            ? 'glass-panel glow-blue bg-cyan-950/20'
-                            : cell.category === 'critical'
-                            ? 'p-2.5 bg-gradient-to-br from-rose-950/40 via-rose-900/25 to-slate-950/40 border border-rose-500/30 glow-peach shadow-lg'
-                            : cell.category === 'moderate'
-                            ? 'p-2.5 bg-gradient-to-br from-amber-950/40 via-amber-900/25 to-slate-950/40 border border-amber-500/30 glow-amber shadow-lg'
-                            : 'glass-panel hover:bg-white/5'
-                        }`}
-                      >
-                        {/* Active indicator dot */}
-                        {isSelected && (
-                          <div className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 rounded-full bg-cyan-400 flex items-center justify-center shadow-md shadow-cyan-400/80">
-                            <div className="w-1.5 h-1.5 rounded-full bg-slate-950" />
-                          </div>
-                        )}
-
-                        {/* Cell Type 1: Large Amount Display (₹14.2 Cr) */}
-                        {cell.cellType === 'amount' && (
-                          <span className="text-xl sm:text-2xl font-extrabold text-white font-sans tracking-tight">
-                            {cell.amountDisplay}
-                          </span>
-                        )}
-
-                        {/* Cell Type 2: Glowing Dot */}
-                        {cell.cellType === 'dot' && (
-                          <div
-                            className={`w-3.5 h-3.5 rounded-full ${
-                              cell.category === 'neutral'
-                                ? 'bg-slate-600'
-                                : 'bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.85)]'
-                            }`}
-                          />
-                        )}
-
-                        {/* Cell Type 3: Badge (Conflict) */}
-                        {cell.cellType === 'badge' && (
-                          <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-[10px] font-semibold tracking-wide">
-                            {cell.badgeLabel}
-                          </span>
-                        )}
-
-                        {/* Cell Type 4: Card with Badge Pill + Amount */}
-                        {cell.cellType === 'card' && (
-                          <div className="flex flex-col items-center justify-center text-center">
-                            <span
-                              className={`px-2 py-0.5 rounded-full text-[9px] font-medium mb-1 ${
-                                cell.category === 'critical'
-                                  ? 'bg-rose-500/25 text-rose-200 border border-rose-400/30'
-                                  : 'bg-amber-500/25 text-amber-200 border border-amber-400/30'
-                              }`}
-                            >
-                              {cell.badgeLabel}
-                            </span>
-                            <span className="text-lg font-extrabold text-white font-sans">
-                              {cell.amountDisplay}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              ))}
             </div>
           </div>
 
           {/* Tactical Coordinate Crosshair HUD on Bottom Left (Image 3) */}
-          <div className="mt-4 flex items-center justify-between text-slate-500 font-mono text-[9px] pt-2 border-t border-white/5">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-              <span>Grid Reference: 1.07.00 &bull; 1.38.20</span>
+          <div className="mt-3 sm:mt-4 flex items-center justify-between text-slate-500 font-mono text-[8.5px] sm:text-[9px] pt-2 border-t border-white/5">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
+              <span className="truncate">Grid Reference: 1.07.00 &bull; 1.38.20</span>
             </div>
-            <div className="flex items-center gap-1.5 text-slate-400">
-              <Sparkles className="w-3 h-3 text-cyan-400" />
-              <span>Click any cell to inspect intersection</span>
+            <div className="flex items-center gap-1 sm:gap-1.5 text-slate-400 shrink-0">
+              <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-cyan-400" />
+              <span className="hidden xs:inline">Click cell to inspect</span>
             </div>
           </div>
         </div>
 
         {/* Right Side: Dedicated Intersection Inspector Panel (Always Clear, Never Blocks Matrix) */}
-        <div className="lg:col-span-5 glass-panel p-5 sm:p-6 rounded-3xl border border-white/15 shadow-2xl bg-slate-950/90 backdrop-blur-2xl space-y-4">
+        <div className="lg:col-span-5 glass-panel p-4 sm:p-6 rounded-3xl border border-white/15 shadow-2xl bg-slate-950/90 backdrop-blur-2xl space-y-4">
           {/* Header Row */}
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <div className="flex items-center gap-2">
@@ -522,7 +524,7 @@ export const OverlapMatrix: React.FC<OverlapMatrixProps> = ({
           </div>
 
           {/* 2-Column Ministry Breakdown Cards */}
-          <div className="grid grid-cols-2 gap-3 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 text-xs">
             {/* Left Box: Ministry of Agriculture */}
             <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 space-y-1.5">
               <div className="flex items-center justify-between text-[11px] text-slate-300 font-semibold">

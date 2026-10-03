@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Filter, Sparkles, RefreshCw, MapPin } from 'lucide-react';
 
 interface KnowledgeGraphExplorerProps {
@@ -206,103 +206,253 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
     return currentFilterMeta.activeNodeKeys.includes(nodeKey);
   };
 
-  // Center node coordinate (calibrated for open canvas)
-  const center = { x: 480, y: 310 };
+  // Responsive screenMode to scale the graph canvas beautifully on mobile (<768px), tablet, and desktop
+  const [screenMode, setScreenMode] = useState<'mobile' | 'tablet' | 'desktop'>(() => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 768) return 'mobile';
+      if (window.innerWidth < 1024) return 'tablet';
+    }
+    return 'desktop';
+  });
 
-  // Radial nodes coordinates matching clean symmetrical layout
-  const radialNodes = [
-    {
-      key: 'PFMS_HEAD_2401',
-      label: 'PFMS Head 2401',
-      borderColor: '#f59e0b',
-      arrowMarker: 'url(#arrow-amber)',
-      x: 270,
-      y: 150,
-      width: 165,
-      height: 38,
-      type: 'pfms',
-      curvePath: 'M 435 275 C 380 270, 325 215, 305 174',
-      linkText: '[:SPATIALLY_IDENTICAL {0.99}]',
-      labelX: 370,
-      labelY: 235,
-    },
-    {
-      key: 'DPDP_TOKEN',
-      label: 'DPDP Beneficiary',
-      sublabel: 'Token: TKN-883F',
-      borderColor: '#c084fc',
-      arrowMarker: 'url(#arrow-purple)',
-      x: 690,
-      y: 150,
-      width: 200,
-      height: 44,
-      type: 'token',
-      curvePath: 'M 525 275 C 580 270, 635 215, 655 174',
-      linkText: '[:DUPLICATE_ASSET]',
-      labelX: 590,
-      labelY: 235,
-    },
-    {
-      key: 'ENAM_YARD',
-      label: 'e-NAM Yard',
-      sublabel: 'MH-012',
-      borderColor: '#34d399',
-      arrowMarker: 'url(#arrow-emerald)',
-      x: 270,
-      y: 470,
-      width: 165,
-      height: 44,
-      type: 'scheme',
-      curvePath: 'M 435 345 C 380 350, 325 405, 305 446',
-      linkText: '[:SPATIALLY_IDENTICAL {0.99}]',
-      labelX: 370,
-      labelY: 385,
-    },
-    {
-      key: 'PMGSY_ROAD',
-      label: 'PMGSY Road Link',
-      borderColor: '#38bdf8',
-      arrowMarker: 'url(#arrow-cyan)',
-      x: 690,
-      y: 470,
-      width: 175,
-      height: 38,
-      type: 'scheme',
-      curvePath: 'M 525 345 C 580 350, 635 405, 655 446',
-      linkText: '[:DUPLICATE_ASSET]',
-      labelX: 590,
-      labelY: 385,
-    },
-  ];
+  useEffect(() => {
+    const updateScreenMode = () => {
+      if (window.innerWidth < 768) {
+        setScreenMode('mobile');
+      } else if (window.innerWidth < 1024) {
+        setScreenMode('tablet');
+      } else {
+        setScreenMode('desktop');
+      }
+    };
+
+    updateScreenMode();
+    window.addEventListener('resize', updateScreenMode);
+    return () => window.removeEventListener('resize', updateScreenMode);
+  }, []);
+
+  const isMobile = screenMode === 'mobile';
+
+  // Center node coordinate (mobile: centered in 460x520 portrait; desktop/tablet: landscape)
+  const center = isMobile ? { x: 230, y: 260 } : { x: 480, y: 310 };
+
+  // Radial nodes coordinates matching viewport (prominent portrait layout on mobile, landscape on desktop)
+  const radialNodes = isMobile
+    ? [
+        {
+          key: 'PFMS_HEAD_2401',
+          label: 'PFMS Head 2401',
+          borderColor: '#f59e0b',
+          arrowMarker: 'url(#arrow-amber)',
+          x: 98,
+          y: 105,
+          width: 155,
+          height: 42,
+          type: 'pfms',
+          curvePath: 'M 195 225 C 165 210, 135 175, 115 130',
+          linkText: '[:SPATIALLY_IDENTICAL]',
+          labelX: 135,
+          labelY: 185,
+        },
+        {
+          key: 'DPDP_TOKEN',
+          label: 'DPDP Beneficiary',
+          sublabel: 'Token: TKN-883F',
+          borderColor: '#c084fc',
+          arrowMarker: 'url(#arrow-purple)',
+          x: 362,
+          y: 105,
+          width: 160,
+          height: 44,
+          type: 'token',
+          curvePath: 'M 265 225 C 295 210, 325 175, 345 130',
+          linkText: '[:DUPLICATE_ASSET]',
+          labelX: 325,
+          labelY: 185,
+        },
+        {
+          key: 'ENAM_YARD',
+          label: 'e-NAM Yard',
+          sublabel: 'MH-012',
+          borderColor: '#34d399',
+          arrowMarker: 'url(#arrow-emerald)',
+          x: 98,
+          y: 415,
+          width: 155,
+          height: 44,
+          type: 'scheme',
+          curvePath: 'M 195 295 C 165 310, 135 345, 115 390',
+          linkText: '[:SPATIALLY_IDENTICAL]',
+          labelX: 135,
+          labelY: 345,
+        },
+        {
+          key: 'PMGSY_ROAD',
+          label: 'PMGSY Road Link',
+          borderColor: '#38bdf8',
+          arrowMarker: 'url(#arrow-cyan)',
+          x: 362,
+          y: 415,
+          width: 160,
+          height: 42,
+          type: 'scheme',
+          curvePath: 'M 265 295 C 295 310, 325 345, 345 390',
+          linkText: '[:DUPLICATE_ASSET]',
+          labelX: 325,
+          labelY: 345,
+        },
+      ]
+    : [
+        {
+          key: 'PFMS_HEAD_2401',
+          label: 'PFMS Head 2401',
+          borderColor: '#f59e0b',
+          arrowMarker: 'url(#arrow-amber)',
+          x: 270,
+          y: 150,
+          width: 165,
+          height: 38,
+          type: 'pfms',
+          curvePath: 'M 435 275 C 380 270, 325 215, 305 174',
+          linkText: '[:SPATIALLY_IDENTICAL {0.99}]',
+          labelX: 370,
+          labelY: 235,
+        },
+        {
+          key: 'DPDP_TOKEN',
+          label: 'DPDP Beneficiary',
+          sublabel: 'Token: TKN-883F',
+          borderColor: '#c084fc',
+          arrowMarker: 'url(#arrow-purple)',
+          x: 690,
+          y: 150,
+          width: 200,
+          height: 44,
+          type: 'token',
+          curvePath: 'M 525 275 C 580 270, 635 215, 655 174',
+          linkText: '[:DUPLICATE_ASSET]',
+          labelX: 590,
+          labelY: 235,
+        },
+        {
+          key: 'ENAM_YARD',
+          label: 'e-NAM Yard',
+          sublabel: 'MH-012',
+          borderColor: '#34d399',
+          arrowMarker: 'url(#arrow-emerald)',
+          x: 270,
+          y: 470,
+          width: 165,
+          height: 44,
+          type: 'scheme',
+          curvePath: 'M 435 345 C 380 350, 325 405, 305 446',
+          linkText: '[:SPATIALLY_IDENTICAL {0.99}]',
+          labelX: 370,
+          labelY: 385,
+        },
+        {
+          key: 'PMGSY_ROAD',
+          label: 'PMGSY Road Link',
+          borderColor: '#38bdf8',
+          arrowMarker: 'url(#arrow-cyan)',
+          x: 690,
+          y: 470,
+          width: 175,
+          height: 38,
+          type: 'scheme',
+          curvePath: 'M 525 345 C 580 350, 635 405, 655 446',
+          linkText: '[:DUPLICATE_ASSET]',
+          labelX: 590,
+          labelY: 385,
+        },
+      ];
 
   const activeDetails = NODE_DETAILS_MAP[selectedKey] || NODE_DETAILS_MAP.PFMS_HEAD_2401;
 
+  const renderInspector = () => (
+    <>
+      <div className="flex items-center justify-between">
+        <span className="font-bold text-sm text-slate-100 tracking-tight">Inspector</span>
+        <span className="glass-pill px-2.5 py-0.5 rounded-full text-[10px] text-purple-300 font-mono border border-purple-400/30">
+          {activeDetails.category}
+        </span>
+      </div>
+
+      {/* Active Filter Scope Indicator inside Inspector */}
+      <div className="p-2.5 rounded-xl bg-slate-950/70 border border-white/5 space-y-1">
+        <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
+          <span className="flex items-center gap-1 text-slate-300 font-semibold">
+            <Filter className="w-3 h-3 text-blue-400" />
+            {currentFilterMeta.title}
+          </span>
+          <span className="text-emerald-400">{currentFilterMeta.nodeCount} / 5 Nodes</span>
+        </div>
+        <p className="text-[9.5px] text-slate-400 leading-tight">
+          {currentFilterMeta.description}
+        </p>
+      </div>
+
+      {/* Cypher graph properties */}
+      <div className="space-y-1.5 text-xs font-mono">
+        <span className="text-[10px] uppercase text-slate-400 font-sans font-semibold tracking-wider flex items-center gap-1.5">
+          <Sparkles className="w-3 h-3 text-cyan-400" />
+          Cypher Node Properties
+        </span>
+        {activeDetails.properties.map((prop, idx) => (
+          <div key={idx} className="flex justify-between items-center text-slate-300 text-[11px]">
+            <span className="text-slate-500">{prop.label} :</span>
+            <strong className={prop.color || 'text-slate-200'}>{prop.value}</strong>
+          </div>
+        ))}
+      </div>
+
+      {/* Compliance & Privacy Pill Badge */}
+      <div className="pt-1">
+        <span className="text-[10px] uppercase text-slate-400 font-sans font-semibold tracking-wider block mb-1.5">
+          Data Governance Status
+        </span>
+        <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-400/40 text-[10px] font-medium inline-block">
+          {activeDetails.badge}
+        </span>
+      </div>
+
+      {/* Glowing Mint Action Button: Trace Provenance (Image 4) */}
+      <button
+        type="button"
+        onClick={() => onOpenDrawer(activeDetails.voucherId)}
+        className="w-full py-2.5 px-4 rounded-full bg-emerald-300 hover:bg-emerald-200 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-400/30 transition-all cursor-pointer"
+      >
+        <span>Trace Provenance</span>
+      </button>
+    </>
+  );
+
+  const svgViewBox = isMobile ? '0 0 460 520' : screenMode === 'tablet' ? '140 70 680 480' : '0 0 1200 640';
+
   return (
     <div className="w-full max-w-6xl mx-auto space-y-3 animate-in fade-in duration-300 relative">
-      {/* Main Canvas & Inspector Layout (Matching Reference Image 4) */}
-      <div className="glass-panel rounded-3xl p-4 shadow-2xl relative overflow-hidden h-[640px] border border-white/10">
+      {/* Main Canvas Container (Responsive height on mobile, 640px on lg screens) */}
+      <div className="glass-panel rounded-3xl p-3 sm:p-4 shadow-2xl relative overflow-hidden h-[480px] sm:h-[540px] lg:h-[640px] border border-white/10">
         {/* Dynamic HUD Indicator that changes with the bottom filter bar */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-950/90 border border-white/10 shadow-2xl backdrop-blur-xl transition-all">
-          <div className={`w-2 h-2 rounded-full ${currentFilterMeta.dotColor} animate-pulse`} />
-          <span className="text-[11px] font-mono text-slate-200">
+        <div className="absolute top-3 sm:top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 sm:gap-2.5 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-950/90 border border-white/10 shadow-2xl backdrop-blur-xl transition-all max-w-[calc(100vw-2rem)]">
+          <div className={`w-2 h-2 rounded-full ${currentFilterMeta.dotColor} animate-pulse shrink-0`} />
+          <span className="text-[10px] sm:text-[11px] font-mono text-slate-200 truncate">
             {currentFilterMeta.hudText}
           </span>
           {activeFilter !== 'All' && (
             <button
               type="button"
               onClick={() => handleFilterClick('All')}
-              className="ml-2 px-2 py-0.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white text-[10px] font-mono flex items-center gap-1 transition-colors cursor-pointer"
+              className="ml-1 sm:ml-2 px-2 py-0.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white text-[10px] font-mono flex items-center gap-1 transition-colors cursor-pointer shrink-0"
             >
               <RefreshCw className="w-2.5 h-2.5" />
-              <span>Show All</span>
+              <span className="hidden sm:inline">Show All</span>
             </button>
           )}
         </div>
 
-
-
         {/* SVG Node-Link Canvas */}
-        <svg className="w-full h-full select-none" viewBox="0 0 1200 640">
+        <svg className="w-full h-full select-none" viewBox={svgViewBox}>
           <defs>
             {/* Subtle Cypher Graph Grid */}
             <pattern id="graph-grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -401,7 +551,7 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
                   x={rn.labelX}
                   y={rn.labelY}
                   fill={isVisible && activeFilter !== 'All' ? rn.borderColor : '#94a3b8'}
-                  fontSize="9.5"
+                  fontSize={isMobile ? "8.5" : "9.5"}
                   fontFamily="monospace"
                   textAnchor="middle"
                   className="font-medium"
@@ -423,7 +573,7 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
           >
             {/* Pulsing ambient blue glow halo */}
             <circle
-              r={activeFilter === 'LGD Codes' ? 76 : 64}
+              r={activeFilter === 'LGD Codes' ? (isMobile ? 68 : 76) : (isMobile ? 56 : 64)}
               fill="#2563eb"
               fillOpacity={activeFilter === 'LGD Codes' ? 0.28 : 0.16}
               className="animate-pulse transition-all duration-500"
@@ -560,7 +710,7 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
                         y={-4}
                         textAnchor="middle"
                         fill="#f8fafc"
-                        fontSize="11"
+                        fontSize={isMobile ? "12" : "11"}
                         fontWeight="600"
                         fontFamily="sans-serif"
                       >
@@ -570,7 +720,7 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
                         y={12}
                         textAnchor="middle"
                         fill={rn.key === 'ENAM_YARD' ? '#6ee7b7' : '#d8b4fe'}
-                        fontSize="9.5"
+                        fontSize={isMobile ? "10" : "9.5"}
                         fontWeight="500"
                         fontFamily="monospace"
                       >
@@ -582,7 +732,7 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
                       y={4}
                       textAnchor="middle"
                       fill="#f8fafc"
-                      fontSize="11"
+                      fontSize={isMobile ? "12" : "11"}
                       fontWeight="600"
                       fontFamily="sans-serif"
                     >
@@ -595,9 +745,9 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
           })}
         </svg>
 
-        {/* Bottom Floating Filter Capsule (Exact User Uploaded media_1790999309521.png) */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
-          <div className="glass-panel bg-slate-900/90 backdrop-blur-2xl border border-white/10 px-2 py-1.5 rounded-full flex items-center gap-1.5 shadow-2xl">
+        {/* Bottom Floating Filter Capsule (Smooth swipe on mobile, centered on desktop) */}
+        <div className="absolute bottom-3 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 max-w-[calc(100vw-2rem)]">
+          <div className="glass-panel bg-slate-900/90 backdrop-blur-2xl border border-white/10 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-full flex items-center gap-1 sm:gap-1.5 shadow-2xl max-w-full overflow-x-auto no-scrollbar">
             {(['All', 'LGD Codes', 'PFMS Heads', 'Schemes', 'Tokens'] as FilterType[]).map((filterName) => {
               const isActive = activeFilter === filterName;
               return (
@@ -605,7 +755,7 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
                   key={filterName}
                   type="button"
                   onClick={() => handleFilterClick(filterName)}
-                  className={`px-4 py-1.5 rounded-full text-xs transition-all cursor-pointer select-none ${
+                  className={`px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs transition-all cursor-pointer select-none whitespace-nowrap shrink-0 ${
                     isActive
                       ? 'bg-white text-slate-950 font-bold shadow-[0_0_25px_rgba(255,255,255,0.45)] scale-100'
                       : 'text-slate-400 hover:text-slate-100 hover:bg-white/5 font-medium'
@@ -618,61 +768,9 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
           </div>
         </div>
 
-        {/* Right Inspector Panel (Matching Image 4) */}
-        <div className="absolute top-6 right-6 z-20 w-68 glass-panel p-5 rounded-3xl border border-white/15 shadow-2xl space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="font-bold text-sm text-slate-100 tracking-tight">Inspector</span>
-            <span className="glass-pill px-2.5 py-0.5 rounded-full text-[10px] text-purple-300 font-mono border border-purple-400/30">
-              {activeDetails.category}
-            </span>
-          </div>
-
-          {/* Active Filter Scope Indicator inside Inspector */}
-          <div className="p-2.5 rounded-xl bg-slate-950/70 border border-white/5 space-y-1">
-            <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
-              <span className="flex items-center gap-1 text-slate-300 font-semibold">
-                <Filter className="w-3 h-3 text-blue-400" />
-                {currentFilterMeta.title}
-              </span>
-              <span className="text-emerald-400">{currentFilterMeta.nodeCount} / 5 Nodes</span>
-            </div>
-            <p className="text-[9.5px] text-slate-400 leading-tight">
-              {currentFilterMeta.description}
-            </p>
-          </div>
-
-          {/* Cypher graph properties */}
-          <div className="space-y-1.5 text-xs font-mono">
-            <span className="text-[10px] uppercase text-slate-400 font-sans font-semibold tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3 h-3 text-cyan-400" />
-              Cypher Node Properties
-            </span>
-            {activeDetails.properties.map((prop, idx) => (
-              <div key={idx} className="flex justify-between items-center text-slate-300 text-[11px]">
-                <span className="text-slate-500">{prop.label} :</span>
-                <strong className={prop.color || 'text-slate-200'}>{prop.value}</strong>
-              </div>
-            ))}
-          </div>
-
-          {/* Compliance & Privacy Pill Badge */}
-          <div className="pt-1">
-            <span className="text-[10px] uppercase text-slate-400 font-sans font-semibold tracking-wider block mb-1.5">
-              Data Governance Status
-            </span>
-            <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-400/40 text-[10px] font-medium inline-block">
-              {activeDetails.badge}
-            </span>
-          </div>
-
-          {/* Glowing Mint Action Button: Trace Provenance (Image 4) */}
-          <button
-            type="button"
-            onClick={() => onOpenDrawer(activeDetails.voucherId)}
-            className="w-full py-2.5 px-4 rounded-full bg-emerald-300 hover:bg-emerald-200 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-400/30 transition-all cursor-pointer"
-          >
-            <span>Trace Provenance</span>
-          </button>
+        {/* Right Inspector Panel (Matching Image 4 on Desktop lg+ screens) */}
+        <div className="hidden lg:block absolute top-6 right-6 z-20 w-68 glass-panel p-5 rounded-3xl border border-white/15 shadow-2xl space-y-4">
+          {renderInspector()}
         </div>
 
         {/* Bottom-Right Tactical Radar Widget (Matching Image 4) */}
@@ -705,6 +803,11 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Mobile & Tablet Inspector Panel (Stacked cleanly below canvas on < lg screens) */}
+      <div className="block lg:hidden glass-panel p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/15 shadow-2xl space-y-3.5">
+        {renderInspector()}
       </div>
     </div>
   );

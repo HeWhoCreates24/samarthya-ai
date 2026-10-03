@@ -156,3 +156,12 @@
   background: rgba(13, 19, 33, 0.95) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
+
+/* Hide scrollbars while preserving scroll functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

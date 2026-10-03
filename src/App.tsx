@@ -68,7 +68,7 @@ export const App: React.FC = () => {
       />
 
       {/* 2. Main Workspace Tab View */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 py-5 md:py-8 md:px-6 space-y-6 sm:space-y-8">
         {activeTab === 'copilot' && (
           <AskSamarthyaView
             onOpenDrawer={handleOpenDrawer}
@@ -116,15 +116,15 @@ export const App: React.FC = () => {
 
       {/* 6. Enterprise Public Finance Footer */}
       <footer className="mt-auto border-t border-slate-800/80 bg-slate-950 py-4 px-4 text-center text-xs text-slate-400">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-400" />
-            <span className="font-mono">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <div className="flex items-center justify-center sm:justify-start gap-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+            <span className="font-mono text-[11px] sm:text-xs">
               Samarthya-AI &bull; Team Sahayata (Problem Statement ID: EL-03)
             </span>
           </div>
-          <div className="flex items-center gap-4 text-[11px] font-mono">
-            <span>Local Government Directory (LGD) Anchor v2026.3</span>
+          <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-3 sm:gap-x-4 gap-y-1 text-[10px] sm:text-[11px] font-mono text-slate-400">
+            <span>LGD Anchor v2026.3</span>
             <span>PFMS Major Heads 2401, 2501, 4401</span>
             <span>Zero-Trust Cryptographic Ledger</span>
           </div>

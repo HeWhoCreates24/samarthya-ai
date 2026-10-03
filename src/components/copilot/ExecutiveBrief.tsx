@@ -33,19 +33,20 @@ export const ExecutiveBrief: React.FC<ExecutiveBriefProps> = ({
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-5 animate-in fade-in duration-300">
+    <div className="w-full max-w-5xl mx-auto space-y-6 sm:space-y-8 animate-in fade-in duration-300">
       {/* Verification Mode Switcher (Matching Image 1 Clean Bar) */}
-      <div className="flex items-center justify-between px-1">
-        <div className="text-xs text-slate-400 font-sans">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1 py-1">
+        <div className="text-xs text-slate-400 font-sans flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
           <span>Verification Mode: </span>
           <strong className="text-slate-200 font-medium">Symbolic Engine Active (Zero Hallucination)</strong>
         </div>
 
-        <div className="glass-pill p-1 rounded-full flex items-center text-xs">
+        <div className="glass-pill p-1 rounded-full flex items-center text-xs self-start sm:self-auto shadow-md">
           <button
             type="button"
             onClick={() => setActiveMode('standard-llm')}
-            className={`px-3 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-full text-[10.5px] sm:text-[11px] font-medium transition-all cursor-pointer ${
               activeMode === 'standard-llm'
                 ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm'
                 : 'text-slate-400 hover:text-slate-200'
@@ -57,7 +58,7 @@ export const ExecutiveBrief: React.FC<ExecutiveBriefProps> = ({
           <button
             type="button"
             onClick={() => setActiveMode('dual-plane')}
-            className={`px-3 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-full text-[10.5px] sm:text-[11px] font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
               activeMode === 'dual-plane'
                 ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                 : 'text-slate-400 hover:text-slate-200'
@@ -71,13 +72,13 @@ export const ExecutiveBrief: React.FC<ExecutiveBriefProps> = ({
 
       {/* STANDARD LLM UNVERIFIED SIMULATION */}
       {activeMode === 'standard-llm' && (
-        <div className="glass-panel p-6 rounded-3xl border border-rose-500/30 bg-rose-950/15 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-rose-400 font-semibold text-sm">
-              <AlertTriangle className="w-4 h-4" />
+        <div className="glass-panel p-5 sm:p-6 rounded-3xl border border-rose-500/30 bg-rose-950/15 space-y-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 text-rose-400 font-semibold text-xs sm:text-sm">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
               <span>Standard LLM Inference (Probabilistic Hallucination Exposure)</span>
             </div>
-            <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[10px] font-mono">
+            <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[10px] font-mono shrink-0">
               Zero Citations
             </span>
           </div>
@@ -111,84 +112,92 @@ export const ExecutiveBrief: React.FC<ExecutiveBriefProps> = ({
 
       {/* DUAL-PLANE DETERMINISTIC VERIFIED VIEW (Exact Image 1 Cards & Table) */}
       {activeMode === 'dual-plane' && (
-        <div className="space-y-5">
+        <div className="space-y-6 sm:space-y-7">
           {/* 4 Frosted KPI Metric Cards (Matching Image 1: Clean Single Header Pill on Right) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5">
             {/* Card 1: Redundant Outlay (Peach Pill on Right) */}
             <div
               onClick={() => onOpenDrawer('Txn_84920')}
-              className="glass-panel p-5 rounded-2xl glow-peach relative overflow-hidden group cursor-pointer transition-all hover:scale-[1.02]"
+              className="glass-panel p-4 sm:p-5 rounded-2xl sm:rounded-3xl glow-peach relative overflow-hidden group cursor-pointer transition-all hover:scale-[1.02] flex flex-col justify-between"
             >
               <div className="flex items-center justify-end">
-                <span className="px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-400/30 text-[11px] font-medium font-sans">
+                <span className="px-2 sm:px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-400/30 text-[9.5px] sm:text-[11px] font-medium font-sans">
                   Redundant Outlay
                 </span>
               </div>
-              <div className="mt-3">
-                <span className="text-3xl font-extrabold text-white tracking-tight">
-                  {dualPlaneVerified.kpis.redundantOutlay}
+              <div className="mt-3 sm:mt-4 flex items-baseline flex-wrap gap-x-1">
+                <span className="text-xl sm:text-3xl font-extrabold text-white tracking-tight">
+                  ₹1.84 Cr
+                </span>
+                <span className="text-[11px] sm:text-xs text-slate-400 font-medium">
+                  <span className="hidden sm:inline">/ Quarter</span>
+                  <span className="sm:hidden">/ Qtr</span>
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 mt-1 font-mono">Heads 2401 vs 2501</p>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 mt-2 font-mono">Heads 2401 vs 2501</p>
             </div>
 
             {/* Card 2: Avoided Leakage (Mint Pill on Right) */}
             <div
               onClick={() => onOpenDrawer('Txn_84920')}
-              className="glass-panel p-5 rounded-2xl glow-mint relative overflow-hidden group cursor-pointer transition-all hover:scale-[1.02]"
+              className="glass-panel p-4 sm:p-5 rounded-2xl sm:rounded-3xl glow-mint relative overflow-hidden group cursor-pointer transition-all hover:scale-[1.02] flex flex-col justify-between"
             >
               <div className="flex items-center justify-end">
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[11px] font-medium font-sans">
+                <span className="px-2 sm:px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[9.5px] sm:text-[11px] font-medium font-sans">
                   Avoided Leakage
                 </span>
               </div>
-              <div className="mt-3">
-                <span className="text-3xl font-extrabold text-white tracking-tight">
-                  {dualPlaneVerified.kpis.leakageAvoidance}
+              <div className="mt-3 sm:mt-4 flex items-baseline flex-wrap gap-x-1">
+                <span className="text-xl sm:text-3xl font-extrabold text-white tracking-tight">
+                  ₹7.36 Cr
+                </span>
+                <span className="text-[11px] sm:text-xs text-slate-400 font-medium">
+                  <span className="hidden sm:inline">/ Year</span>
+                  <span className="sm:hidden">/ Yr</span>
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 mt-1 font-mono">Salvageable via freeze</p>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 mt-2 font-mono">Salvageable via freeze</p>
             </div>
 
             {/* Card 3: Overlap Detected (Ice Blue Pill on Right) */}
             <div
               onClick={() => onNavigateToMap('Palghar')}
-              className="glass-panel p-5 rounded-2xl glow-blue relative overflow-hidden group cursor-pointer transition-all hover:scale-[1.02]"
+              className="glass-panel p-4 sm:p-5 rounded-2xl sm:rounded-3xl glow-blue relative overflow-hidden group cursor-pointer transition-all hover:scale-[1.02] flex flex-col justify-between"
             >
               <div className="flex items-center justify-end">
-                <span className="px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[11px] font-medium font-sans">
+                <span className="px-2 sm:px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[9.5px] sm:text-[11px] font-medium font-sans">
                   Overlap Detected
                 </span>
               </div>
-              <div className="mt-3">
-                <span className="text-3xl font-extrabold text-white tracking-tight">
+              <div className="mt-3 sm:mt-4">
+                <span className="text-xl sm:text-3xl font-extrabold text-white tracking-tight">
                   {dualPlaneVerified.kpis.affectedBlocks} Blocks
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 mt-1 font-mono">Across 3 States</p>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 mt-2 font-mono">Across 3 States</p>
             </div>
 
             {/* Card 4: Verifier Confidence (Teal Pill on Right) */}
             <div
               onClick={() => onOpenDrawer('Txn_84920')}
-              className="glass-panel p-5 rounded-2xl glow-mint relative overflow-hidden group cursor-pointer transition-all hover:scale-[1.02]"
+              className="glass-panel p-4 sm:p-5 rounded-2xl sm:rounded-3xl glow-mint relative overflow-hidden group cursor-pointer transition-all hover:scale-[1.02] flex flex-col justify-between"
             >
               <div className="flex items-center justify-end">
-                <span className="px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-400/30 text-[11px] font-medium font-sans">
+                <span className="px-2 sm:px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-400/30 text-[9.5px] sm:text-[11px] font-medium font-sans">
                   Verifier Confidence
                 </span>
               </div>
-              <div className="mt-3">
-                <span className="text-3xl font-extrabold text-white tracking-tight">
+              <div className="mt-3 sm:mt-4">
+                <span className="text-xl sm:text-3xl font-extrabold text-white tracking-tight">
                   {dualPlaneVerified.kpis.verifierConfidence}
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 mt-1 font-mono">Record Linkage 0-Delta</p>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 mt-2 font-mono">Record Linkage 0-Delta</p>
             </div>
           </div>
 
           {/* Quick Cross-View Jump Toolbar */}
-          <div className="flex items-center justify-between px-1 pt-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1 pt-2 pb-1">
             <span className="text-xs text-slate-400">
               National Reconciliation Ledger &bull; Confirmed Spatial Invariants
             </span>
@@ -216,7 +225,7 @@ export const ExecutiveBrief: React.FC<ExecutiveBriefProps> = ({
           {/* Frosted Reconciliation Data Table (Matching Image 1) */}
           <div className="glass-panel rounded-2xl overflow-hidden shadow-2xl">
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[620px]">
                 <thead>
                   <tr className="border-b border-white/5 text-slate-400 text-[11px] font-medium">
                     <th className="py-3.5 px-4 w-10">

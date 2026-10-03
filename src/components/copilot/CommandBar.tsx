@@ -30,19 +30,19 @@ export const CommandBar: React.FC<CommandBarProps> = ({
   ];
 
   return (
-    <div className="w-full max-w-3xl mx-auto space-y-3">
+    <div className="w-full max-w-3xl mx-auto space-y-3.5 sm:space-y-4">
       {/* 1. Sleek Frosted Glass Capsule Command Bar (Matching Image 1) */}
       <form onSubmit={handleSubmit} className="relative">
-        <div className="glass-input rounded-full px-5 py-3.5 flex items-center gap-3 shadow-2xl transition-all focus-within:ring-2 focus-within:ring-blue-500/40 focus-within:border-blue-400/50">
+        <div className="glass-input rounded-full px-4 sm:px-5 py-3 sm:py-3.5 flex items-center gap-2 sm:gap-3 shadow-2xl transition-all focus-within:ring-2 focus-within:ring-blue-500/40 focus-within:border-blue-400/50">
           <input
             type="text"
             value={currentQuery}
             onChange={(e) => onQueryChange(e.target.value)}
             placeholder="Ask Samarthya anything across 54 ministries..."
-            className="flex-1 bg-transparent text-slate-100 placeholder-slate-400 text-sm focus:outline-none font-sans"
+            className="flex-1 bg-transparent text-slate-100 placeholder-slate-400 text-xs sm:text-sm focus:outline-none font-sans min-w-0"
           />
 
-          <div className="flex items-center gap-2 text-slate-400">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-slate-400 shrink-0">
             <button
               type="button"
               title="Voice Input"
@@ -62,7 +62,7 @@ export const CommandBar: React.FC<CommandBarProps> = ({
             <button
               type="submit"
               disabled={isLoading || !currentQuery.trim()}
-              className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 disabled:opacity-40 text-white flex items-center justify-center transition-all shadow-md shadow-blue-500/30 cursor-pointer ml-1"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 disabled:opacity-40 text-white flex items-center justify-center transition-all shadow-md shadow-blue-500/30 cursor-pointer ml-0.5 sm:ml-1"
             >
               <Send className="w-3.5 h-3.5 -translate-y-px translate-x-px" />
             </button>
@@ -70,8 +70,8 @@ export const CommandBar: React.FC<CommandBarProps> = ({
         </div>
       </form>
 
-      {/* 2. Quick Clickable Scenario Presets (Clean Centered Wrap, No Text Truncation / Clipping) */}
-      <div className="flex flex-wrap items-center justify-center gap-2 pt-1 text-xs">
+      {/* 2. Quick Clickable Scenario Presets (Smooth swipe on mobile, clean centered wrap on tablet/desktop) */}
+      <div className="flex items-center gap-2 pt-1 text-xs overflow-x-auto no-scrollbar py-1 px-1 justify-start sm:justify-center">
         {COPILOT_SCENARIOS.map((sc, index) => {
           const isSelected = selectedScenarioId === sc.id;
           return (
@@ -82,7 +82,7 @@ export const CommandBar: React.FC<CommandBarProps> = ({
                 onQueryChange(sc.query);
                 onExecuteQuery(sc.id);
               }}
-              className={`px-3 py-1 rounded-full text-[11px] transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+              className={`px-3.5 py-1.5 rounded-full text-[11px] sm:text-xs transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 ${
                 isSelected
                   ? 'bg-blue-600/25 border border-blue-400/50 text-blue-200 shadow-md shadow-blue-500/10'
                   : 'glass-pill text-slate-300 hover:text-white hover:border-white/20'
