@@ -1,0 +1,158 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@layer base {
+  :root {
+    --gov-bg: #070a11;
+    --gov-surface: #0d121d;
+    --gov-card: rgba(15, 23, 42, 0.55);
+    --gov-border: rgba(255, 255, 255, 0.08);
+    --gov-peach: #fb7185;
+    --gov-mint: #34d399;
+    --gov-blue: #38bdf8;
+    --gov-amber: #fbbf24;
+    --gov-purple: #c084fc;
+  }
+
+  body {
+    background-color: #070a11;
+    color: #f1f5f9;
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+/* Tactical Background with subtle topographical contour vectors */
+.tactical-grid-bg {
+  background-color: #070a11;
+  background-image: 
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(56, 189, 248, 0.08), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 90% 80%, rgba(251, 113, 133, 0.06), transparent 60%),
+    radial-gradient(ellipse 50% 30% at 10% 70%, rgba(52, 211, 153, 0.05), transparent 60%),
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+}
+
+/* Frosted Glassmorphic Containers */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.glass-pill {
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.glass-input {
+  background: rgba(13, 19, 33, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.06);
+}
+
+/* Ambient Glow Utilities */
+.glow-peach {
+  box-shadow: 0 0 35px -8px rgba(251, 113, 133, 0.35), inset 0 0 20px rgba(251, 113, 133, 0.08);
+}
+
+.glow-mint {
+  box-shadow: 0 0 35px -8px rgba(52, 211, 153, 0.4), inset 0 0 20px rgba(52, 211, 153, 0.08);
+}
+
+.glow-blue {
+  box-shadow: 0 0 35px -8px rgba(56, 189, 248, 0.35), inset 0 0 20px rgba(56, 189, 248, 0.08);
+}
+
+.glow-purple {
+  box-shadow: 0 0 35px -8px rgba(192, 132, 252, 0.35), inset 0 0 20px rgba(192, 132, 252, 0.08);
+}
+
+.glow-amber {
+  box-shadow: 0 0 35px -8px rgba(251, 191, 36, 0.35), inset 0 0 20px rgba(251, 191, 36, 0.08);
+}
+
+/* Radar Sweep Animation */
+@keyframes radar-sweep {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-radar {
+  animation: radar-sweep 4s linear infinite;
+  transform-origin: center;
+}
+
+/* Concentric Radar Danger Rings */
+@keyframes ring-expand {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+}
+
+.radar-ring {
+  animation: ring-expand 3s ease-in-out infinite;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(7, 10, 17, 0.8);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* Leaflet Dark Customization */
+.leaflet-container {
+  background: #070a11 !important;
+  font-family: inherit;
+}
+
+.leaflet-popup-content-wrapper {
+  background: rgba(13, 19, 33, 0.95) !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 16px !important;
+  backdrop-filter: blur(20px) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75) !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: 1.4 !important;
+}
+
+.leaflet-popup-tip {
+  background: rgba(13, 19, 33, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
