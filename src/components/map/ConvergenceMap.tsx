@@ -1,10 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import L from 'leaflet';
 import {
   X,
   AlertTriangle,
   Boxes,
   Milestone,
+  ChevronLeft,
+  ChevronRight,
+  Navigation,
+  Target,
 } from 'lucide-react';
 import { GEO_SPATIAL_FEATURES } from '../../data/mockGovernanceData';
 import type { GeoAssetFeature } from '../../types/governance';
@@ -36,33 +40,99 @@ export const ConvergenceMap: React.FC<ConvergenceMapProps> = ({
     GEO_SPATIAL_FEATURES[0]
   );
 
+  const overlapZones = GEO_SPATIAL_FEATURES.filter((f) => f.type === 'overlap_zone');
+  const currentZoneIdx = overlapZones.findIndex((z) => z.id === selectedFeature?.id);
+
+  // Jump camera focus to a feature with smooth animation
+  const handleJumpToFeature = useCallback(
+    (feature: GeoAssetFeature) => {
+      setSelectedFeature(feature);
+      if (feature.type === 'overlap_zone' && activeLayer !== 'duplicates') {
+        setActiveLayer('duplicates');
+      }
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.flyTo(feature.coordinates, 12, {
+          duration: 1.3,
+          easeLinearity: 0.25,
+        });
+      }
+    },
+    [activeLayer]
+  );
+
+  const handleNextZone = () => {
+    const nextIdx = (currentZoneIdx + 1) % overlapZones.length;
+    handleJumpToFeature(overlapZones[nextIdx]);
+  };
+
+  const handlePrevZone = () => {
+    const prevIdx = (currentZoneIdx - 1 + overlapZones.length) % overlapZones.length;
+    handleJumpToFeature(overlapZones[prevIdx]);
+  };
+
   // Helper to create custom SVG divIcon matching tactical aesthetic (Image 5)
-  const createCustomDivIcon = (type: 'warehouse' | 'road' | 'overlap_zone') => {
-    if (type === 'overlap_zone') {
+  const createCustomDivIcon = (feature: GeoAssetFeature, isSelected: boolean) => {
+    if (feature.type === 'overlap_zone') {
+      const amount = feature.metrics?.overlapAmountDisplay?.replace(' Redundant', '') || '₹3.8 Cr';
+      const matchPct = feature.block === 'Dahanu' ? '98%' : feature.block === 'Talasari' ? '96%' : '99%';
+
       return L.divIcon({
         className: 'custom-map-pin',
         html: `
-          <div class="relative flex items-center justify-center">
-            <div class="w-7 h-7 rounded-full bg-rose-500/30 border border-rose-500 flex items-center justify-center cursor-pointer glow-peach">
-              <div class="w-3 h-3 rounded-full bg-rose-500 animate-ping opacity-75"></div>
-              <div class="w-2.5 h-2.5 rounded-full bg-rose-400 absolute"></div>
+          <div class="relative flex items-center justify-center cursor-pointer pointer-events-auto group" style="width: 220px; height: 220px;">
+            <!-- Outer radar ring 1 -->
+            <div class="absolute inset-0 rounded-full border ${
+              isSelected ? 'border-rose-400/60 ring-2 ring-rose-500/30' : 'border-rose-500/30'
+            } flex items-center justify-center pointer-events-none transition-all duration-300">
+              <!-- Radar ring 2 -->
+              <div class="w-36 h-36 rounded-full border ${
+                isSelected ? 'border-rose-400/70 bg-rose-500/10' : 'border-rose-500/45'
+              } flex items-center justify-center relative transition-all duration-300">
+                <!-- Radar ring 3 & Core -->
+                <div class="w-20 h-20 rounded-full border ${
+                  isSelected
+                    ? 'border-rose-400 bg-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.5)]'
+                    : 'border-rose-500/65 bg-rose-500/15'
+                } flex items-center justify-center">
+                  <!-- Pinging center dot -->
+                  <div class="w-4 h-4 rounded-full bg-rose-500 animate-ping opacity-75"></div>
+                  <div class="w-3.5 h-3.5 rounded-full ${
+                    isSelected
+                      ? 'bg-white shadow-[0_0_12px_rgba(255,255,255,0.9)]'
+                      : 'bg-rose-400 shadow-lg shadow-rose-500'
+                  } absolute"></div>
+                </div>
+                <!-- Radar sweep radial arm -->
+                <div class="absolute inset-0 rounded-full border-t-2 border-rose-400 animate-radar"></div>
+              </div>
             </div>
-            <div class="absolute -top-7 whitespace-nowrap px-2 py-0.5 rounded-full bg-slate-950/90 border border-rose-500/50 text-[10px] font-mono text-rose-300 shadow-xl pointer-events-none">
-              Overlap: ₹3.8 Cr (96% Match)
+            <!-- Floating Target Badge centered above the core -->
+            <div class="absolute top-4 whitespace-nowrap px-3 py-1 rounded-full ${
+              isSelected
+                ? 'bg-slate-900 border-2 border-rose-400 text-white shadow-[0_0_25px_rgba(244,63,94,0.6)] scale-105'
+                : 'bg-slate-950/95 border border-rose-500/60 text-rose-300 shadow-2xl'
+            } text-[10px] font-mono pointer-events-auto hover:scale-105 transition-all flex items-center gap-1.5 cursor-pointer">
+              <span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-emerald-400' : 'bg-rose-400'} animate-pulse"></span>
+              <span>Overlap: ${amount} (${matchPct} Match)</span>
+              ${isSelected ? '<span class="text-[9px] text-rose-400 font-bold ml-0.5 tracking-wider">[FOCUS]</span>' : ''}
             </div>
           </div>
         `,
-        iconSize: [30, 30],
-        iconAnchor: [15, 15],
+        iconSize: [220, 220],
+        iconAnchor: [110, 110],
       });
     }
 
-    if (type === 'warehouse') {
+    if (feature.type === 'warehouse') {
       return L.divIcon({
         className: 'custom-map-pin',
         html: `
-          <div class="flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-400 text-emerald-300 shadow-lg cursor-pointer glow-mint">
-            <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
+          <div class="flex items-center justify-center w-6 h-6 rounded-full ${
+            isSelected
+              ? 'bg-emerald-400 text-slate-950 ring-4 ring-emerald-400/40 scale-125'
+              : 'bg-emerald-500/20 border border-emerald-400 text-emerald-300'
+          } shadow-lg cursor-pointer glow-mint transition-all">
+            <div class="w-2 h-2 rounded-full ${isSelected ? 'bg-slate-950' : 'bg-emerald-400'}"></div>
           </div>
         `,
         iconSize: [24, 24],
@@ -73,8 +143,12 @@ export const ConvergenceMap: React.FC<ConvergenceMapProps> = ({
     return L.divIcon({
       className: 'custom-map-pin',
       html: `
-        <div class="flex items-center justify-center w-5 h-5 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-300 shadow-md cursor-pointer glow-blue">
-          <div class="w-1.5 h-1.5 rounded-full bg-cyan-400"></div>
+        <div class="flex items-center justify-center w-5 h-5 rounded-full ${
+          isSelected
+            ? 'bg-cyan-400 text-slate-950 ring-4 ring-cyan-400/40 scale-125'
+            : 'bg-cyan-500/20 border border-cyan-400 text-cyan-300'
+        } shadow-md cursor-pointer glow-blue transition-all">
+          <div class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-slate-950' : 'bg-cyan-400'}"></div>
         </div>
       `,
       iconSize: [20, 20],
@@ -120,7 +194,7 @@ export const ConvergenceMap: React.FC<ConvergenceMapProps> = ({
     };
   }, []);
 
-  // Update Layers based on activeLayer toggle
+  // Update Layers based on activeLayer toggle and selectedFeature
   useEffect(() => {
     if (!mapInstanceRef.current || !layerGroupRef.current) return;
 
@@ -135,28 +209,31 @@ export const ConvergenceMap: React.FC<ConvergenceMapProps> = ({
 
       if (!shouldShow) return;
 
+      const isSelected = selectedFeature?.id === feature.id;
+
       // Add road polylines
       if (feature.type === 'road' && feature.polylineCoords) {
         const polyline = L.polyline(feature.polylineCoords, {
-          color: '#22d3ee',
-          weight: 3.5,
-          opacity: 0.85,
+          color: isSelected ? '#38bdf8' : '#22d3ee',
+          weight: isSelected ? 5 : 3.5,
+          opacity: isSelected ? 1 : 0.85,
           dashArray: '3, 6',
         }).addTo(layerGroup);
 
-        polyline.on('click', () => setSelectedFeature(feature));
+        polyline.on('click', () => handleJumpToFeature(feature));
       }
 
       // Add custom SVG marker
       const marker = L.marker(feature.coordinates, {
-        icon: createCustomDivIcon(feature.type),
+        icon: createCustomDivIcon(feature, isSelected),
+        zIndexOffset: isSelected ? 1000 : 0,
       }).addTo(layerGroup);
 
       marker.on('click', () => {
-        setSelectedFeature(feature);
+        handleJumpToFeature(feature);
       });
     });
-  }, [activeLayer]);
+  }, [activeLayer, selectedFeature?.id, handleJumpToFeature]);
 
   // Handle external focus target
   useEffect(() => {
@@ -203,9 +280,10 @@ export const ConvergenceMap: React.FC<ConvergenceMapProps> = ({
           +0809700
         </div>
 
-        {/* Top Floating Pill Toggle Bar (Matching Image 5) */}
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[400]">
-          <div className="glass-pill px-2 py-1 rounded-full flex items-center gap-1 shadow-2xl">
+        {/* Top Floating Controls (Layer Toggles & Zone Focus Jump) */}
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[400] flex flex-col items-center gap-2 pointer-events-none">
+          {/* Layer Pills */}
+          <div className="glass-pill px-2 py-1 rounded-full flex items-center gap-1 shadow-2xl pointer-events-auto">
             <button
               type="button"
               onClick={() => setActiveLayer('roads')}
@@ -245,49 +323,103 @@ export const ConvergenceMap: React.FC<ConvergenceMapProps> = ({
               <span>Duplicate Zones</span>
             </button>
           </div>
-        </div>
 
-        {/* Tactical Pulsing Concentric Red Radar Rings Overlay (Center Target Pin) */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[300] pointer-events-none flex items-center justify-center">
-          <div className="w-64 h-64 rounded-full border border-rose-500/40 radar-ring flex items-center justify-center">
-            <div className="w-44 h-44 rounded-full border border-rose-500/50 flex items-center justify-center relative">
-              <div className="w-24 h-24 rounded-full border border-rose-500/60 bg-rose-500/10 flex items-center justify-center">
-                <div className="w-4 h-4 rounded-full bg-rose-500 animate-ping opacity-75" />
+          {/* Quick-Jump Zone Focus Bar */}
+          {activeLayer === 'duplicates' && (
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-slate-950/90 border border-white/10 backdrop-blur-xl shadow-2xl animate-in fade-in duration-200 pointer-events-auto">
+              <div className="flex items-center gap-1 px-2 text-[10px] font-mono text-slate-400">
+                <Target className="w-3 h-3 text-rose-400 animate-pulse" />
+                <span className="hidden sm:inline">Jump Zone:</span>
               </div>
-              {/* Radar sweep radial arm */}
-              <div className="absolute inset-0 rounded-full border-t border-rose-400 animate-radar" />
+              {overlapZones.map((zone) => {
+                const isSelected = selectedFeature?.id === zone.id;
+                return (
+                  <button
+                    key={zone.id}
+                    type="button"
+                    onClick={() => handleJumpToFeature(zone)}
+                    className={`px-3 py-1 rounded-full text-xs font-mono transition-all flex items-center gap-1.5 cursor-pointer select-none ${
+                      isSelected
+                        ? 'bg-rose-500/30 border border-rose-400/70 text-white font-bold shadow-[0_0_15px_rgba(244,63,94,0.4)] scale-105'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-rose-400 animate-ping' : 'bg-slate-500'}`} />
+                    <span>{zone.block}</span>
+                    <span className="text-[10px] text-slate-500 hidden md:inline">
+                      ({zone.district})
+                    </span>
+                  </button>
+                );
+              })}
             </div>
-          </div>
+          )}
         </div>
 
         {/* Leaflet Map Canvas */}
         <div ref={mapContainerRef} className="w-full h-full z-0" />
 
-        {/* Right Floating Popover Card: Dahanu Block Storage Hub (Matching Image 5) */}
+        {/* Right Floating Popover Card: Dynamic Inspector (Matching Image 5) */}
         {selectedFeature && (
-          <div className="absolute top-20 right-6 z-[400] w-72 glass-panel p-5 rounded-3xl border border-white/15 shadow-2xl space-y-3 animate-in fade-in duration-200">
-            {/* Header Capsule & Close X */}
+          <div className="absolute top-24 right-6 z-[400] w-76 glass-panel p-5 rounded-3xl border border-white/15 shadow-2xl space-y-3 animate-in fade-in duration-200">
+            {/* Header Capsule & Zone Nav Buttons */}
             <div className="flex items-center justify-between">
-              <span className="glass-pill px-2.5 py-0.5 rounded-full text-[10px] font-mono text-slate-300 uppercase tracking-wider">
-                DISTRICT 532: PALGHAR
-              </span>
-              <button
-                type="button"
-                onClick={() => setSelectedFeature(null)}
-                className="p-1 rounded-full hover:bg-white/10 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-1.5">
+                <span className="glass-pill px-2.5 py-0.5 rounded-full text-[10px] font-mono text-slate-300 uppercase tracking-wider">
+                  DISTRICT: {selectedFeature.district ? selectedFeature.district.toUpperCase() : 'PALGHAR'} ({selectedFeature.state === 'Maharashtra' ? 'MH' : 'MP'})
+                </span>
+                {currentZoneIdx >= 0 && (
+                  <span className="text-[9.5px] font-mono text-rose-400 bg-rose-500/15 px-1.5 py-0.5 rounded-full border border-rose-500/30">
+                    {currentZoneIdx + 1}/{overlapZones.length}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-0.5">
+                {currentZoneIdx >= 0 && (
+                  <>
+                    <button
+                      type="button"
+                      title="Jump to Previous Zone"
+                      onClick={handlePrevZone}
+                      className="p-1 rounded-full hover:bg-white/10 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      title="Jump to Next Zone"
+                      onClick={handleNextZone}
+                      className="p-1 rounded-full hover:bg-white/10 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                    >
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </>
+                )}
+                <button
+                  type="button"
+                  title="Close Inspector"
+                  onClick={() => setSelectedFeature(null)}
+                  className="p-1 rounded-full hover:bg-white/10 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer ml-1"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {/* Asset Title & Metadata */}
             <div>
               <h3 className="font-bold text-base text-slate-100 tracking-tight">
-                {selectedFeature.block} Block Storage Hub
+                {selectedFeature.type === 'road' ? selectedFeature.name : `${selectedFeature.block || selectedFeature.name} Block Storage Hub`}
               </h3>
               <div className="text-xs text-slate-400 mt-1 space-y-0.5">
-                <div>Census Pop: <strong className="text-slate-200 font-sans">142,000</strong></div>
-                <div>LGD: <strong className="text-blue-400 font-mono">04812</strong></div>
+                <div>Census Pop: <strong className="text-slate-200 font-sans">{selectedFeature.metrics?.censusPopulation ? selectedFeature.metrics.censusPopulation.toLocaleString() : '142,000'}</strong></div>
+                <div>LGD: <strong className="text-blue-400 font-mono">{selectedFeature.lgdCode || '04812'}</strong></div>
+                {selectedFeature.metrics?.overlapAmountDisplay && (
+                  <div className="flex items-center gap-1.5 pt-0.5">
+                    <span className="text-slate-500 font-sans">Redundant:</span>
+                    <strong className="text-rose-400 font-mono">{selectedFeature.metrics.overlapAmountDisplay}</strong>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -295,7 +427,7 @@ export const ConvergenceMap: React.FC<ConvergenceMapProps> = ({
             <div className="space-y-2 pt-1">
               <button
                 type="button"
-                onClick={() => onOpenDrawer('Txn_84920')}
+                onClick={() => onOpenDrawer(selectedFeature.linkedVoucherId || 'Txn_84920')}
                 className="w-full py-2.5 px-3 rounded-full bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-400/30 hover:bg-emerald-300 transition-all cursor-pointer"
               >
                 <span>Inspect Proof</span>
@@ -303,11 +435,22 @@ export const ConvergenceMap: React.FC<ConvergenceMapProps> = ({
 
               <button
                 type="button"
-                onClick={() => onNavigateToGraph('LGD_BLOCK_04812')}
+                onClick={() => onNavigateToGraph(selectedFeature.lgdCode ? `LGD_BLOCK_${selectedFeature.lgdCode}` : undefined)}
                 className="w-full py-2.5 px-3 rounded-full glass-pill text-slate-200 hover:text-white font-medium text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
                 <span>Open Graph</span>
               </button>
+
+              {currentZoneIdx >= 0 && (
+                <button
+                  type="button"
+                  onClick={handleNextZone}
+                  className="w-full py-2 px-3 rounded-full bg-slate-950/70 hover:bg-slate-900 border border-white/10 text-slate-300 hover:text-white text-[11px] font-mono flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Navigation className="w-3 h-3 text-cyan-400" />
+                  <span>Jump Next Zone ({overlapZones[(currentZoneIdx + 1) % overlapZones.length]?.block})</span>
+                </button>
+              )}
             </div>
           </div>
         )}

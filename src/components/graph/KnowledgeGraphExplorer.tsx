@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { Filter, Sparkles, RefreshCw, MapPin } from 'lucide-react';
 
 interface KnowledgeGraphExplorerProps {
   onOpenDrawer: (voucherId: string) => void;
   selectedNodeId?: string | null;
 }
+
+type FilterType = 'All' | 'LGD Codes' | 'PFMS Heads' | 'Schemes' | 'Tokens';
 
 interface NodeDetails {
   id: string;
@@ -13,6 +16,70 @@ interface NodeDetails {
   voucherId: string;
   properties: { label: string; value: string; color?: string }[];
 }
+
+interface FilterMeta {
+  title: string;
+  hudText: string;
+  dotColor: string;
+  activeNodeKeys: string[];
+  defaultKey: string;
+  nodeCount: number;
+  linkCount: number;
+  description: string;
+}
+
+const FILTER_CONFIG: Record<FilterType, FilterMeta> = {
+  'All': {
+    title: 'Full Knowledge Graph',
+    hudText: 'Full Ontological View • 5 Nodes & 4 Directed Graph Relations',
+    dotColor: 'bg-blue-400',
+    activeNodeKeys: ['LGD_BLOCK_53218', 'PFMS_HEAD_2401', 'DPDP_TOKEN', 'ENAM_YARD', 'PMGSY_ROAD'],
+    defaultKey: 'PFMS_HEAD_2401',
+    nodeCount: 5,
+    linkCount: 4,
+    description: 'Cross-ministry convergence across 54 Union Ministry lakehouses.',
+  },
+  'LGD Codes': {
+    title: 'LGD Code Resolution',
+    hudText: 'LGD Master Hierarchy • Isolated Block 53218 (Dahanu) & Spatial Boundary',
+    dotColor: 'bg-emerald-400',
+    activeNodeKeys: ['LGD_BLOCK_53218', 'ENAM_YARD'],
+    defaultKey: 'LGD_BLOCK_53218',
+    nodeCount: 2,
+    linkCount: 1,
+    description: 'Local Government Directory anchor pinning physical cadastre boundary.',
+  },
+  'PFMS Heads': {
+    title: 'PFMS Major Heads Audit',
+    hudText: 'PFMS Head Audit • Major Head 2401 (Crop) vs Head 2501 (Rural Dev)',
+    dotColor: 'bg-amber-400',
+    activeNodeKeys: ['LGD_BLOCK_53218', 'PFMS_HEAD_2401', 'PMGSY_ROAD'],
+    defaultKey: 'PFMS_HEAD_2401',
+    nodeCount: 3,
+    linkCount: 2,
+    description: 'Public Financial Management System expenditure conflict audit.',
+  },
+  'Schemes': {
+    title: 'Ministry Scheme Convergence',
+    hudText: 'Scheme Overlap Audit • MoA&FW-RKVY vs MoRD-PMGSY Convergence',
+    dotColor: 'bg-cyan-400',
+    activeNodeKeys: ['LGD_BLOCK_53218', 'ENAM_YARD', 'PMGSY_ROAD'],
+    defaultKey: 'PMGSY_ROAD',
+    nodeCount: 3,
+    linkCount: 2,
+    description: 'Dual-ministry capital asset overlap and pavement connectivity audit.',
+  },
+  'Tokens': {
+    title: 'DPDP Privacy Tokens',
+    hudText: 'DPDP Act 2023 Privacy Shield • Zero-Knowledge Tokenized Beneficiary Vault',
+    dotColor: 'bg-purple-400',
+    activeNodeKeys: ['LGD_BLOCK_53218', 'DPDP_TOKEN'],
+    defaultKey: 'DPDP_TOKEN',
+    nodeCount: 2,
+    linkCount: 1,
+    description: 'Zero-Knowledge beneficiary identity protection under DPDP Act 2023.',
+  },
+};
 
 const NODE_DETAILS_MAP: Record<string, NodeDetails> = {
   'LGD_BLOCK_53218': {
@@ -96,7 +163,7 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
   onOpenDrawer,
   selectedNodeId,
 }) => {
-  const [activeFilter, setActiveFilter] = useState<string>('All');
+  const [activeFilter, setActiveFilter] = useState<FilterType>('All');
   const [prevNodeId, setPrevNodeId] = useState<string | null | undefined>(selectedNodeId);
   const [selectedKey, setSelectedKey] = useState<string>(() => {
     if (selectedNodeId) {
@@ -126,199 +193,218 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
     }
   }
 
-  // Center node coordinate
-  const center = { x: 400, y: 280 };
+  // Handle clicking on the bottom filter pill bar
+  const handleFilterClick = (filterName: FilterType) => {
+    setActiveFilter(filterName);
+    const meta = FILTER_CONFIG[filterName];
+    setSelectedKey(meta.defaultKey);
+  };
 
-  // Radial nodes coordinates matching reference image 4
+  const currentFilterMeta = FILTER_CONFIG[activeFilter];
+
+  const isNodeActive = (nodeKey: string) => {
+    return currentFilterMeta.activeNodeKeys.includes(nodeKey);
+  };
+
+  // Center node coordinate (calibrated for open canvas)
+  const center = { x: 480, y: 310 };
+
+  // Radial nodes coordinates matching clean symmetrical layout
   const radialNodes = [
     {
       key: 'PFMS_HEAD_2401',
       label: 'PFMS Head 2401',
       borderColor: '#f59e0b',
-      x: 210,
-      y: 140,
-      width: 175,
+      arrowMarker: 'url(#arrow-amber)',
+      x: 270,
+      y: 150,
+      width: 165,
+      height: 38,
       type: 'pfms',
-      curvePath: 'M 350 240 C 310 235, 270 195, 260 160',
-      arrowX: 260,
-      arrowY: 160,
+      curvePath: 'M 435 275 C 380 270, 325 215, 305 174',
       linkText: '[:SPATIALLY_IDENTICAL {0.99}]',
-      labelX: 290,
-      labelY: 228,
+      labelX: 370,
+      labelY: 235,
     },
     {
       key: 'DPDP_TOKEN',
-      label: 'DPDP Beneficiary Token: TKN-883F',
+      label: 'DPDP Beneficiary',
+      sublabel: 'Token: TKN-883F',
       borderColor: '#c084fc',
-      x: 590,
-      y: 140,
-      width: 205,
+      arrowMarker: 'url(#arrow-purple)',
+      x: 690,
+      y: 150,
+      width: 200,
+      height: 44,
       type: 'token',
-      curvePath: 'M 450 240 C 490 235, 530 195, 540 160',
-      arrowX: 540,
-      arrowY: 160,
+      curvePath: 'M 525 275 C 580 270, 635 215, 655 174',
       linkText: '[:DUPLICATE_ASSET]',
-      labelX: 510,
-      labelY: 228,
+      labelX: 590,
+      labelY: 235,
     },
     {
       key: 'ENAM_YARD',
-      label: 'e-NAM Yard MH-012',
+      label: 'e-NAM Yard',
+      sublabel: 'MH-012',
       borderColor: '#34d399',
-      x: 210,
-      y: 420,
-      width: 175,
+      arrowMarker: 'url(#arrow-emerald)',
+      x: 270,
+      y: 470,
+      width: 165,
+      height: 44,
       type: 'scheme',
-      curvePath: 'M 350 320 C 310 325, 270 365, 260 400',
-      arrowX: 260,
-      arrowY: 400,
+      curvePath: 'M 435 345 C 380 350, 325 405, 305 446',
       linkText: '[:SPATIALLY_IDENTICAL {0.99}]',
-      labelX: 290,
-      labelY: 338,
+      labelX: 370,
+      labelY: 385,
     },
     {
       key: 'PMGSY_ROAD',
       label: 'PMGSY Road Link',
       borderColor: '#38bdf8',
-      x: 590,
-      y: 420,
+      arrowMarker: 'url(#arrow-cyan)',
+      x: 690,
+      y: 470,
       width: 175,
+      height: 38,
       type: 'scheme',
-      curvePath: 'M 450 320 C 490 325, 530 365, 540 400',
-      arrowX: 540,
-      arrowY: 400,
+      curvePath: 'M 525 345 C 580 350, 635 405, 655 446',
       linkText: '[:DUPLICATE_ASSET]',
-      labelX: 510,
-      labelY: 338,
+      labelX: 590,
+      labelY: 385,
     },
   ];
-
-  const handleFilterClick = (filterName: string) => {
-    setActiveFilter(filterName);
-    if (filterName === 'PFMS Heads') {
-      setSelectedKey('PFMS_HEAD_2401');
-    } else if (filterName === 'LGD Codes') {
-      setSelectedKey('LGD_BLOCK_53218');
-    } else if (filterName === 'Tokens') {
-      setSelectedKey('DPDP_TOKEN');
-    } else if (filterName === 'Schemes') {
-      setSelectedKey('PMGSY_ROAD');
-    }
-  };
-
-  const isNodeHighlighted = (nodeType: string, nodeKey: string) => {
-    if (activeFilter === 'All') return true;
-    if (activeFilter === 'LGD Codes') return nodeKey === 'LGD_BLOCK_53218';
-    if (activeFilter === 'PFMS Heads') return nodeType === 'pfms';
-    if (activeFilter === 'Schemes') return nodeType === 'scheme';
-    if (activeFilter === 'Tokens') return nodeType === 'token';
-    return true;
-  };
 
   const activeDetails = NODE_DETAILS_MAP[selectedKey] || NODE_DETAILS_MAP.PFMS_HEAD_2401;
 
   return (
     <div className="w-full max-w-6xl mx-auto space-y-3 animate-in fade-in duration-300 relative">
       {/* Main Canvas & Inspector Layout (Matching Reference Image 4) */}
-      <div className="glass-panel rounded-3xl p-4 shadow-2xl relative overflow-hidden h-[630px] border border-white/10">
-        {/* Subtle Canvas Watermark & Neo4j Indicator */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 text-center pointer-events-none">
-          <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-            Neo4j Knowledge Graph Subgraph &bull; Anchor LGD Block: 53218 (Dahanu)
+      <div className="glass-panel rounded-3xl p-4 shadow-2xl relative overflow-hidden h-[640px] border border-white/10">
+        {/* Dynamic HUD Indicator that changes with the bottom filter bar */}
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-950/90 border border-white/10 shadow-2xl backdrop-blur-xl transition-all">
+          <div className={`w-2 h-2 rounded-full ${currentFilterMeta.dotColor} animate-pulse`} />
+          <span className="text-[11px] font-mono text-slate-200">
+            {currentFilterMeta.hudText}
           </span>
+          {activeFilter !== 'All' && (
+            <button
+              type="button"
+              onClick={() => handleFilterClick('All')}
+              className="ml-2 px-2 py-0.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white text-[10px] font-mono flex items-center gap-1 transition-colors cursor-pointer"
+            >
+              <RefreshCw className="w-2.5 h-2.5" />
+              <span>Show All</span>
+            </button>
+          )}
         </div>
 
-        {/* Floating Left Specs / Status Legend (Matching Image 4) */}
-        <div className="absolute top-6 left-6 z-20 space-y-3 pointer-events-none sm:pointer-events-auto">
-          {/* Status Color Tokens */}
-          <div className="glass-panel p-3.5 rounded-2xl border border-white/10 space-y-2 text-[10px] font-mono w-44 shadow-xl">
-            <div className="flex items-center justify-between text-slate-400 font-sans text-[11px] font-semibold">
-              <span>Ontology</span>
-              <span>Hex Token</span>
-            </div>
-            <div className="px-2.5 py-1 rounded-lg bg-blue-300/20 text-blue-200 border border-blue-300/30 flex items-center justify-between font-bold">
-              <span>Ice Blue</span>
-              <span>#BFDBFE</span>
-            </div>
-            <div className="px-2.5 py-1 rounded-lg bg-rose-300/20 text-rose-200 border border-rose-300/30 flex items-center justify-between font-bold">
-              <span>Peach/Salmon</span>
-              <span>#FECDD3</span>
-            </div>
-            <div className="px-2.5 py-1 rounded-lg bg-amber-300/20 text-amber-200 border border-amber-300/30 flex items-center justify-between font-bold">
-              <span>Lemon</span>
-              <span>#FEF08A</span>
-            </div>
-            <div className="px-2.5 py-1 rounded-lg bg-emerald-300/20 text-emerald-200 border border-emerald-300/30 flex items-center justify-between font-bold">
-              <span>Mint</span>
-              <span>#A7F3D0</span>
-            </div>
-          </div>
 
-          {/* Frosted Specs Card */}
-          <div className="glass-panel p-3.5 rounded-2xl border border-white/10 space-y-1.5 text-[10px] text-slate-400 w-44 hidden md:block shadow-xl">
-            <div className="font-bold text-slate-200 text-xs font-sans">Frosted UI Specs</div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-              <span>Backdrop-blur-xl &bull; Glass block</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span>Inner ambient glow</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-              <span>Tactical geospatial HUD</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
-              <span>Crisp typography</span>
-            </div>
-          </div>
-        </div>
 
         {/* SVG Node-Link Canvas */}
-        <svg className="w-full h-full select-none" viewBox="0 0 800 580">
+        <svg className="w-full h-full select-none" viewBox="0 0 1200 640">
           <defs>
-            {/* Arrowhead marker for directed edges */}
+            {/* Subtle Cypher Graph Grid */}
+            <pattern id="graph-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255, 255, 255, 0.025)" strokeWidth="1" />
+            </pattern>
+
+            {/* Default arrow marker */}
             <marker
-              id="arrow"
+              id="arrow-default"
               viewBox="0 0 10 10"
-              refX="6"
+              refX="7"
               refY="5"
               markerWidth="6"
               markerHeight="6"
               orient="auto-start-reverse"
             >
-              <path d="M 0 1 L 9 5 L 0 9 z" fill="#64748b" />
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#475569" />
+            </marker>
+
+            {/* Colored arrow markers for active states */}
+            <marker
+              id="arrow-amber"
+              viewBox="0 0 10 10"
+              refX="7"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#f59e0b" />
+            </marker>
+            <marker
+              id="arrow-purple"
+              viewBox="0 0 10 10"
+              refX="7"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#c084fc" />
+            </marker>
+            <marker
+              id="arrow-emerald"
+              viewBox="0 0 10 10"
+              refX="7"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#34d399" />
+            </marker>
+            <marker
+              id="arrow-cyan"
+              viewBox="0 0 10 10"
+              refX="7"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#38bdf8" />
             </marker>
           </defs>
 
+          {/* Grid Background */}
+          <rect width="100%" height="100%" fill="url(#graph-grid)" />
+
           {/* Draw Curved Links between Central Node and Radial Nodes */}
           {radialNodes.map((rn) => {
-            const isHighlighted = isNodeHighlighted(rn.type, rn.key);
+            const isVisible = isNodeActive(rn.key);
+            const strokeColor = isVisible && activeFilter !== 'All' ? rn.borderColor : '#475569';
+            const marker = isVisible && activeFilter !== 'All' ? rn.arrowMarker : 'url(#arrow-default)';
+
             return (
               <g
                 key={rn.key}
-                className="transition-opacity duration-300"
-                style={{ opacity: isHighlighted ? 1 : 0.25 }}
+                className="transition-all duration-500 ease-in-out"
+                style={{
+                  opacity: isVisible ? 1 : 0.08,
+                  pointerEvents: isVisible ? 'auto' : 'none',
+                }}
               >
                 {/* Flowing curved bezier path */}
                 <path
                   d={rn.curvePath}
                   fill="none"
-                  stroke="#475569"
-                  strokeWidth="1.5"
-                  strokeDasharray="4, 4"
-                  markerEnd="url(#arrow)"
+                  stroke={strokeColor}
+                  strokeWidth={isVisible && activeFilter !== 'All' ? 2 : 1.5}
+                  strokeDasharray={isVisible && activeFilter !== 'All' ? 'none' : '4, 4'}
+                  markerEnd={marker}
                 />
                 {/* Edge Annotation Text */}
                 <text
                   x={rn.labelX}
                   y={rn.labelY}
-                  fill="#94a3b8"
+                  fill={isVisible && activeFilter !== 'All' ? rn.borderColor : '#94a3b8'}
                   fontSize="9.5"
                   fontFamily="monospace"
                   textAnchor="middle"
+                  className="font-medium"
                 >
                   {rn.linkText}
                 </text>
@@ -329,14 +415,19 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
           {/* Central Scalloped Node (Image 4) */}
           <g
             transform={`translate(${center.x}, ${center.y})`}
-            className="cursor-pointer transition-all duration-200"
+            className="cursor-pointer transition-all duration-300 ease-in-out"
             onClick={() => setSelectedKey('LGD_BLOCK_53218')}
             style={{
-              opacity: isNodeHighlighted('lgd', 'LGD_BLOCK_53218') ? 1 : 0.35,
+              opacity: isNodeActive('LGD_BLOCK_53218') ? 1 : 0.2,
             }}
           >
             {/* Pulsing ambient blue glow halo */}
-            <circle r={64} fill="#2563eb" fillOpacity={0.16} className="animate-pulse" />
+            <circle
+              r={activeFilter === 'LGD Codes' ? 76 : 64}
+              fill="#2563eb"
+              fillOpacity={activeFilter === 'LGD Codes' ? 0.28 : 0.16}
+              className="animate-pulse transition-all duration-500"
+            />
 
             {/* Scalloped 8-lobed badge container */}
             <path
@@ -351,11 +442,11 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
                  A 26 26 0 0 1 52 0 Z"
               fill="#080e1e"
               stroke="#3b82f6"
-              strokeWidth="2.5"
+              strokeWidth={selectedKey === 'LGD_BLOCK_53218' || activeFilter === 'LGD Codes' ? 3 : 2.5}
               style={{
                 filter:
-                  selectedKey === 'LGD_BLOCK_53218'
-                    ? 'drop-shadow(0 0 24px rgba(59, 130, 246, 0.9))'
+                  selectedKey === 'LGD_BLOCK_53218' || activeFilter === 'LGD Codes'
+                    ? 'drop-shadow(0 0 28px rgba(59, 130, 246, 0.95))'
                     : 'drop-shadow(0 0 14px rgba(59, 130, 246, 0.6))',
               }}
             />
@@ -393,60 +484,130 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
 
           {/* Radial Nodes with Distinct Colored Ambient Glows */}
           {radialNodes.map((rn) => {
-            const isHighlighted = isNodeHighlighted(rn.type, rn.key);
+            const isVisible = isNodeActive(rn.key);
             const isSelected = selectedKey === rn.key;
             const halfW = rn.width / 2;
+            const halfH = rn.height / 2;
 
             return (
               <g
                 key={rn.key}
                 transform={`translate(${rn.x}, ${rn.y})`}
-                className="cursor-pointer transition-all duration-300"
-                onClick={() => setSelectedKey(rn.key)}
-                style={{ opacity: isHighlighted ? 1 : 0.25 }}
+                className="cursor-pointer transition-opacity duration-500 ease-in-out"
+                onClick={() => isVisible && setSelectedKey(rn.key)}
+                style={{
+                  opacity: isVisible ? 1 : 0.08,
+                  pointerEvents: isVisible ? 'auto' : 'none',
+                }}
               >
-                {/* Outer Glow Capsule */}
-                <rect
-                  x={-halfW}
-                  y={-18}
-                  width={rn.width}
-                  height={36}
-                  rx={18}
-                  fill="#090f1d"
-                  stroke={rn.borderColor}
-                  strokeWidth={isSelected ? 2.5 : 1.8}
+                {/* Scaled Inner Group so CSS scaling doesn't wipe SVG translation */}
+                <g
+                  className="transition-transform duration-300 ease-out"
                   style={{
-                    filter: `drop-shadow(0 0 ${isSelected ? 20 : 12}px ${rn.borderColor}99)`,
+                    transform: isVisible && isSelected ? 'scale(1.06)' : isVisible ? 'scale(1)' : 'scale(0.92)',
+                    transformOrigin: '0px 0px',
                   }}
-                />
-                <text
-                  y={4}
-                  textAnchor="middle"
-                  fill="#f8fafc"
-                  fontSize="10"
-                  fontWeight="600"
-                  fontFamily="sans-serif"
                 >
-                  {rn.label}
-                </text>
+                  {/* Subtle Neon Edge Halo (Zero Light-Bleed) */}
+                  <rect
+                    x={-halfW - 3}
+                    y={-halfH - 3}
+                    width={rn.width + 6}
+                    height={rn.height + 6}
+                    rx={halfH + 3}
+                    fill={rn.borderColor}
+                    fillOpacity={isVisible ? (isSelected ? 0.3 : 0.15) : 0}
+                    className="transition-all duration-300 pointer-events-none"
+                    style={{
+                      filter: 'blur(5px)',
+                    }}
+                  />
+
+                  {/* Active pulse ring when filtered or selected */}
+                  {isVisible && (isSelected || activeFilter !== 'All') && (
+                    <rect
+                      x={-halfW - 5}
+                      y={-halfH - 5}
+                      width={rn.width + 10}
+                      height={rn.height + 10}
+                      rx={halfH + 5}
+                      fill="none"
+                      stroke={rn.borderColor}
+                      strokeWidth={1}
+                      strokeOpacity={0.4}
+                      className="animate-pulse pointer-events-none"
+                    />
+                  )}
+
+                  {/* Outer Glow Capsule */}
+                  <rect
+                    x={-halfW}
+                    y={-halfH}
+                    width={rn.width}
+                    height={rn.height}
+                    rx={halfH}
+                    fill="#090f1d"
+                    stroke={rn.borderColor}
+                    strokeWidth={isSelected ? 2.6 : 1.8}
+                    style={{
+                      filter: `drop-shadow(0 0 ${isSelected ? 20 : 10}px ${rn.borderColor}${isSelected ? 'dd' : '88'})`,
+                    }}
+                  />
+
+                  {rn.sublabel ? (
+                    <>
+                      <text
+                        y={-4}
+                        textAnchor="middle"
+                        fill="#f8fafc"
+                        fontSize="11"
+                        fontWeight="600"
+                        fontFamily="sans-serif"
+                      >
+                        {rn.label}
+                      </text>
+                      <text
+                        y={12}
+                        textAnchor="middle"
+                        fill={rn.key === 'ENAM_YARD' ? '#6ee7b7' : '#d8b4fe'}
+                        fontSize="9.5"
+                        fontWeight="500"
+                        fontFamily="monospace"
+                      >
+                        {rn.sublabel}
+                      </text>
+                    </>
+                  ) : (
+                    <text
+                      y={4}
+                      textAnchor="middle"
+                      fill="#f8fafc"
+                      fontSize="11"
+                      fontWeight="600"
+                      fontFamily="sans-serif"
+                    >
+                      {rn.label}
+                    </text>
+                  )}
+                </g>
               </g>
             );
           })}
         </svg>
 
-        {/* Bottom Floating Filter Capsule (Matching User Uploaded media_1790999309521.png) */}
+        {/* Bottom Floating Filter Capsule (Exact User Uploaded media_1790999309521.png) */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
           <div className="glass-panel bg-slate-900/90 backdrop-blur-2xl border border-white/10 px-2 py-1.5 rounded-full flex items-center gap-1.5 shadow-2xl">
-            {['All', 'LGD Codes', 'PFMS Heads', 'Schemes', 'Tokens'].map((filterName) => {
+            {(['All', 'LGD Codes', 'PFMS Heads', 'Schemes', 'Tokens'] as FilterType[]).map((filterName) => {
               const isActive = activeFilter === filterName;
               return (
                 <button
                   key={filterName}
                   type="button"
                   onClick={() => handleFilterClick(filterName)}
-                  className={`px-4 py-1.5 rounded-full text-xs transition-all cursor-pointer ${
+                  className={`px-4 py-1.5 rounded-full text-xs transition-all cursor-pointer select-none ${
                     isActive
-                      ? 'bg-white text-slate-950 font-bold shadow-[0_0_20px_rgba(255,255,255,0.4)] scale-100'
+                      ? 'bg-white text-slate-950 font-bold shadow-[0_0_25px_rgba(255,255,255,0.45)] scale-100'
                       : 'text-slate-400 hover:text-slate-100 hover:bg-white/5 font-medium'
                   }`}
                 >
@@ -466,13 +627,28 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
             </span>
           </div>
 
+          {/* Active Filter Scope Indicator inside Inspector */}
+          <div className="p-2.5 rounded-xl bg-slate-950/70 border border-white/5 space-y-1">
+            <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
+              <span className="flex items-center gap-1 text-slate-300 font-semibold">
+                <Filter className="w-3 h-3 text-blue-400" />
+                {currentFilterMeta.title}
+              </span>
+              <span className="text-emerald-400">{currentFilterMeta.nodeCount} / 5 Nodes</span>
+            </div>
+            <p className="text-[9.5px] text-slate-400 leading-tight">
+              {currentFilterMeta.description}
+            </p>
+          </div>
+
           {/* Cypher graph properties */}
           <div className="space-y-1.5 text-xs font-mono">
-            <span className="text-[10px] uppercase text-slate-400 font-sans font-semibold tracking-wider block">
-              Cypher graph properties
+            <span className="text-[10px] uppercase text-slate-400 font-sans font-semibold tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3 text-cyan-400" />
+              Cypher Node Properties
             </span>
             {activeDetails.properties.map((prop, idx) => (
-              <div key={idx} className="flex justify-between items-center text-slate-300">
+              <div key={idx} className="flex justify-between items-center text-slate-300 text-[11px]">
                 <span className="text-slate-500">{prop.label} :</span>
                 <strong className={prop.color || 'text-slate-200'}>{prop.value}</strong>
               </div>
@@ -501,16 +677,30 @@ export const KnowledgeGraphExplorer: React.FC<KnowledgeGraphExplorerProps> = ({
 
         {/* Bottom-Right Tactical Radar Widget (Matching Image 4) */}
         <div className="absolute bottom-6 right-6 z-10 pointer-events-none hidden lg:block">
-          <div className="w-36 h-36 rounded-2xl glass-panel p-2 flex flex-col items-center justify-center relative border border-white/10 shadow-xl">
-            <div className="w-24 h-24 rounded-full border border-rose-500/40 flex items-center justify-center relative">
-              <div className="w-16 h-16 rounded-full border border-rose-500/50 flex items-center justify-center bg-rose-500/10">
-                <div className="w-8 h-8 rounded-full border border-rose-500/60" />
+          <div className="w-40 h-40 rounded-2xl glass-panel p-2.5 flex flex-col items-center justify-center relative border border-white/10 shadow-2xl bg-slate-950/80 backdrop-blur-xl">
+            {/* Top-Right Lat/Long with Amber Dot (Image 4) */}
+            <div className="absolute top-2.5 right-3 flex items-center gap-1 text-[8.5px] font-mono text-slate-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+              <span>-35.42.21&apos;</span>
+            </div>
+
+            {/* Radar Circular Sweep */}
+            <div className="w-24 h-24 rounded-full border border-rose-500/30 flex items-center justify-center relative mt-3">
+              <div className="w-16 h-16 rounded-full border border-rose-500/40 flex items-center justify-center bg-rose-500/10">
+                <div className="w-8 h-8 rounded-full border border-rose-500/50" />
               </div>
               {/* Radar sweep radial arm */}
               <div className="absolute inset-0 rounded-full border-t border-rose-400 animate-radar" />
+
+              {/* Glowing 4-point Sparkle Star (Image 4) */}
+              <div className="absolute bottom-1 right-2 text-white/90 drop-shadow-[0_0_8px_rgba(255,255,255,0.9)] animate-pulse">
+                <Sparkles className="w-3.5 h-3.5 fill-white text-white" />
+              </div>
             </div>
-            <div className="text-[8px] font-mono text-slate-500 flex justify-between w-full px-1 mt-1">
-              <span>-35.42.21&apos;</span>
+
+            {/* Bottom-Right Lat/Long with Red Pin (Image 4) */}
+            <div className="flex items-center justify-end w-full px-1 mt-2 text-[8.5px] font-mono text-slate-400 gap-1">
+              <MapPin className="w-2.5 h-2.5 text-rose-500 fill-rose-500 shrink-0" />
               <span>+38.0 0684</span>
             </div>
           </div>

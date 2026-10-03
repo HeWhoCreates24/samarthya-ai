@@ -79,59 +79,73 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Center: Sleek Floating Frosted Capsule Navigation (Reference 1) */}
-        <nav className="glass-pill px-2 py-1 rounded-full flex items-center gap-1.5 shadow-2xl">
-          <button
-            type="button"
-            onClick={() => onTabChange('copilot')}
-            title="Ask Samarthya Copilot"
-            className={`p-2 rounded-full transition-all cursor-pointer flex items-center justify-center ${
-              activeTab === 'copilot'
-                ? 'bg-white/15 text-white shadow-inner ring-1 ring-white/25 scale-105'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-            }`}
-          >
-            <Search className="w-4 h-4" />
-          </button>
+        {/* Center: Upgraded High-Fidelity Frosted Capsule Navigation (Matching Reference 1) */}
+        <nav className="glass-panel bg-slate-900/80 backdrop-blur-2xl border border-white/15 p-1 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.15)] flex items-center gap-1">
+          {[
+            {
+              id: 'copilot',
+              label: 'Ask Copilot',
+              icon: Search,
+              accentColor: 'text-blue-300',
+              activeBg: 'from-blue-500/25 to-indigo-500/20 border-blue-400/40 text-blue-100 shadow-blue-500/20',
+              description: 'Dual-Plane Copilot',
+            },
+            {
+              id: 'matrix',
+              label: 'Overlap Matrix',
+              icon: BarChart3,
+              accentColor: 'text-cyan-300',
+              activeBg: 'from-cyan-500/25 to-blue-500/20 border-cyan-400/40 text-cyan-100 shadow-cyan-500/20',
+              description: 'Cross-Ministry Overlaps',
+            },
+            {
+              id: 'map',
+              label: 'Convergence Map',
+              icon: MapPin,
+              accentColor: 'text-emerald-300',
+              activeBg: 'from-emerald-500/25 to-teal-500/20 border-emerald-400/40 text-emerald-100 shadow-emerald-500/20',
+              description: 'Geospatial Assets',
+            },
+            {
+              id: 'graph',
+              label: 'Knowledge Graph',
+              icon: Network,
+              accentColor: 'text-purple-300',
+              activeBg: 'from-purple-500/25 to-indigo-500/20 border-purple-400/40 text-purple-100 shadow-purple-500/20',
+              description: 'Neo4j Cypher Traversal',
+            },
+          ].map((tab) => {
+            const isActive = activeTab === tab.id;
+            const Icon = tab.icon;
 
-          <button
-            type="button"
-            onClick={() => onTabChange('matrix')}
-            title="Overlap & Gap Matrix"
-            className={`p-2 rounded-full transition-all cursor-pointer flex items-center justify-center ${
-              activeTab === 'matrix'
-                ? 'bg-white/15 text-white shadow-inner ring-1 ring-white/25 scale-105'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-            }`}
-          >
-            <BarChart3 className="w-4 h-4" />
-          </button>
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => onTabChange(tab.id)}
+                title={`${tab.label} — ${tab.description}`}
+                className={`relative px-3 sm:px-3.5 py-1.5 rounded-full transition-all duration-200 cursor-pointer flex items-center gap-2 select-none text-xs ${
+                  isActive
+                    ? `bg-gradient-to-b ${tab.activeBg} font-semibold shadow-lg border scale-[1.02]`
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.07] font-medium'
+                }`}
+              >
+                <Icon
+                  className={`w-3.5 h-3.5 transition-colors ${
+                    isActive ? tab.accentColor : 'text-slate-400'
+                  }`}
+                />
+                <span className="hidden md:inline font-sans tracking-tight">
+                  {tab.label}
+                </span>
 
-          <button
-            type="button"
-            onClick={() => onTabChange('map')}
-            title="Geo-Spatial Convergence Map"
-            className={`p-2 rounded-full transition-all cursor-pointer flex items-center justify-center ${
-              activeTab === 'map'
-                ? 'bg-white/15 text-white shadow-inner ring-1 ring-white/25 scale-105'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-            }`}
-          >
-            <MapPin className="w-4 h-4" />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onTabChange('graph')}
-            title="Knowledge Graph Explorer"
-            className={`p-2 rounded-full transition-all cursor-pointer flex items-center justify-center ${
-              activeTab === 'graph'
-                ? 'bg-white/15 text-white shadow-inner ring-1 ring-white/25 scale-105'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-            }`}
-          >
-            <Network className="w-4 h-4" />
-          </button>
+                {/* Subtle illuminated bottom dot for active tab */}
+                {isActive && (
+                  <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 rounded-full bg-white/70 shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+                )}
+              </button>
+            );
+          })}
         </nav>
 
         {/* Right: Persona Switcher & Cabinet Note Button */}
